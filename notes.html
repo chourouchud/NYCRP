@@ -6,127 +6,143 @@
     body {
       font-family: Arial, sans-serif;
       background-color: #f2f2f2;
-      margin: 0;
-      padding: 0;
     }
-
+    
     .container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      border-radius: 5px;
-      box-sizing: border-box;
     }
-
-    .title {
+    
+    h1 {
       text-align: center;
-      margin-top: 0;
     }
-
-    .textarea {
-      width: 100%;
-      height: 200px;
-      resize: vertical;
+    
+    .note {
+      margin-bottom: 10px;
       padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 14px;
-      line-height: 1.5;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
     }
-
-    .save-btn {
-      display: block;
-      width: 100%;
-      padding: 10px;
+    
+    .note-buttons {
+      display: flex;
+      justify-content: flex-end;
       margin-top: 10px;
-      background-color: #4CAF50;
-      color: #fff;
+    }
+    
+    .edit-button,
+    .delete-button,
+    .clear-button {
+      padding: 5px 10px;
+      margin-left: 10px;
       border: none;
       border-radius: 3px;
       cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s;
     }
-
-    .save-btn:hover {
-      background-color: #45a049;
+    
+    .edit-button {
+      background-color: #4caf50;
+      color: #ffffff;
     }
-
-    .notes {
-      margin-top: 20px;
+    
+    .delete-button {
+      background-color: #f44336;
+      color: #ffffff;
     }
-
-    .notes h3 {
-      margin-top: 0;
-    }
-
-    .notes-list {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .notes-list li {
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 14px;
-      line-height: 1.5;
+    
+    .clear-button {
+      background-color: #ff9800;
+      color: #ffffff;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="title">Forever Notes</h1>
-    <textarea id="noteInput" class="textarea" placeholder="Type your notes here..."></textarea>
-    <button id="saveButton" class="save-btn">Save</button>
-    <div class="notes">
-      <h3>Your Saved Notes:</h3>
-      <ul id="savedNotes" class="notes-list"></ul>
+    <h1>Forever Notes</h1>
+    <div id="notes-container"></div>
+    <div class="note">
+      <textarea id="note-input" rows="4" placeholder="Enter your note"></textarea>
+      <div class="note-buttons">
+        <button id="add-button">Add Note</button>
+        <button id="clear-button" class="clear-button">Clear All Notes</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Retrieve saved notes from Local Storage on page load
-    window.addEventListener('load', function() {
-      loadSavedNotes();
-    });
+    // Retrieve saved notes from localStorage
+    const savedNotes = JSON.parse(localStorage.getItem('notes')) || [];
 
-    // Save the entered note to Local Storage
-    document.getElementById('saveButton').addEventListener('click', function() {
-      var noteInput = document.getElementById('noteInput');
-      var note = noteInput.value.trim();
+    // Function to render notes on the page
+    function renderNotes() {
+      const notesContainer = document.getElementById('notes-container');
+      notesContainer.innerHTML = '';
 
-      if (note !== '') {
-        // Create a unique key for each note using the current timestamp
-        var noteKey = 'note_' + Date.now();
+      savedNotes.forEach((note, index) => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note';
 
-        // Save the note to Local Storage
-        localStorage.setItem(noteKey, note);
+        const noteText = document.createElement('p');
+        noteText.textContent = note;
 
-        // Clear the input field and reload the saved notes
-        noteInput.value = '';
-        loadSavedNotes();
-      }
-    });
+        const noteButtons = document.createElement('div');
+        noteButtons.className = 'note-buttons';
 
-    // Load and display the saved notes from Local Storage
-    function loadSavedNotes() {
-      var savedNotes = document.getElementById('savedNotes');
-      savedNotes.innerHTML = '';
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.className = 'edit-button';
+        editButton.addEventListener('click', () => {
+          const updatedNote = prompt('Enter updated note:', note);
+          if (updatedNote) {
+            savedNotes[index] = updatedNote;
+            localStorage.setItem('notes', JSON.stringify(savedNotes));
+            renderNotes();
+          }
+        });
 
-      for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        var note = localStorage.getItem(key);
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete Note';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', () => {
+          savedNotes.splice(index, 1);
+          localStorage.setItem('notes', JSON.stringify(savedNotes));
+          renderNotes();
+        });
 
-        var li = document.createElement('li');
-        li.textContent = note;
-        savedNotes.appendChild(li);
-      }
+        noteButtons.appendChild(editButton);
+        noteButtons.appendChild(deleteButton);
+
+        noteElement.appendChild(noteText);
+        noteElement.appendChild(noteButtons);
+
+        notesContainer.appendChild(noteElement);
+      });
     }
+
+    // Add event listener to the Add Note button
+    document.getElementById('add-button').addEventListener('click', () => {
+      const noteInput = document.getElementById('note-input');
+      const note = noteInput.value.trim();
+
+      if (note) {
+        savedNotes.push(note);
+        localStorage.setItem('notes', JSON.stringify(savedNotes));
+        noteInput.value = '';
+        renderNotes();
+      }
+    });
+
+    // Add event listener to the Clear All Notes button
+    document.getElementById('clear-button').addEventListener('click', () => {
+      savedNotes.length = 0;
+      localStorage.removeItem('notes');
+      renderNotes();
+    });
+
+    // Initial rendering of notes
+    renderNotes();
   </script>
 </body>
 </html>
