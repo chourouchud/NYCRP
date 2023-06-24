@@ -3,9 +3,69 @@
 <head>
   <title>Password Verification</title>
   <style>
-    body{font-family:Arial,sans-serif;background-color:#f2f2f2}h1{text-align:center}.container{max-width:400px;margin:0 auto;padding:20px;background-color:#ffffff;border:1px solid #cccccc;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}input[type="password"]{width:100%;padding:10px;margin-bottom:10px;border:1px solid #cccccc;border-radius:3px}button{width:100%;padding:10px;background-color:#4CAF50;color:#ffffff;border:none;border-radius:3px;cursor:pointer}button:hover{background-color:#45a049}.image-container{text-align:center;margin-top:20px}.image-container img{width:300px}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #ffffff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .image-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .image-container img {
+      width: 300px;
+    }
   </style>
-  <script>!function(){var o=["\x76\x61\x6C\x75\x65","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F","\x70\x61\x73\x73\x77\x6F\x72\x64","\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64","\x31\x32\x33","\x31\x32\x33\x34","\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"],e=document,n=e[o[0]]("password").value;n===o[5]?window[o[6]][o[2]]=o[1]:(n===o[7]?window[o[6]][o[2]]=o[3]:alert(o[8]))}();</script>
+  <script>
+    var _0x55a6 = ["\x76\x61\x6C\x75\x65", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F", "\x70\x61\x73\x73\x77\x6F\x72\x64", "\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64", "\x31\x32\x33", "\x31\x32\x33\x34", "\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"];
+    function checkPassword() {
+      var password = document.getElementById(_0x55a6[4]).value;
+      if (password === _0x55a6[5]) {
+        window.location.href = _0x55a6[2];
+      } else if (password === _0x55a6[6]) {
+        window.location.href = _0x55a6[3];
+      } else {
+        alert(_0x55a6[7]);
+      }
+    }
+  </script>
 </head>
 <body oncontextmenu="return false">
   <div class="container">
@@ -13,9 +73,6 @@
     <input type="password" id="password" placeholder="Enter password">
     <button onclick="checkPassword()">Submit</button>
   </div>
-  
+
   <div class="image-container">
-    <img src="test.png" alt="Logo">
-  </div>
-</body>
-</html>
+    <img src="test.png
