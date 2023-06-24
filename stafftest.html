@@ -144,52 +144,26 @@
       color: #ffffff;
     }
 
-    /* Custom Popup */
-      .popup {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 3px;
-    background-color: var(--container-bg-color);
-    color: var(--text-color);
+    .incorrect-password-popup {
+      display: none;
+      position: absolute;
+      width: 200px; /* Adjust the width as desired */
+      padding: 10px;
+      background-color: var(--container-bg-color);
+      color: var(--text-color);
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .popup {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 3px;
-    background-color: var(--container-bg-color);
-    color: var(--text-color);
-  }
+    .incorrect-password-popup.show {
+      display: block;
+    }
 
-  .popup.dark-mode {
-    background-color: transparent;
-    color: transparent;
-  }
-
-  .popup-text {
-    display: inline-block;
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--text-color);
-    transition: color 0.3s;
-  }
-
-  .popup-text.dark-mode {
-    color: transparent;
-  }
-    
-    .popup-button {
-      padding: 8px 16px;
-      background-color: #4CAF50;
+    .incorrect-password-popup.dark-mode {
+      background-color: #333333;
       color: #ffffff;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
+      border-color: #ffffff;
     }
   </style>
   <script>
@@ -202,7 +176,8 @@
       } else if (password === String.fromCharCode(49, 50, 51, 52)) {
         window.location.href = _0x55a6[2];
       } else {
-        showPopup(_0x55a6[4]);
+        var popup = document.getElementById("incorrect-password-popup");
+        popup.classList.add("show");
       }
     }
 
@@ -219,30 +194,6 @@
       } else {
         toggleLabel.textContent = "Dark Mode";
       }
-    }
-
-    function showPopup(message) {
-      var popup = document.createElement("div");
-      popup.className = "popup";
-
-      var popupContent = document.createElement("div");
-      popupContent.className = "popup-content";
-
-      var popupText = document.createElement("p");
-      popupText.className = "popup-text";
-      popupText.textContent = message;
-
-      var popupButton = document.createElement("button");
-      popupButton.className = "popup-button";
-      popupButton.textContent = "OK";
-      popupButton.addEventListener("click", function() {
-        document.body.removeChild(popup);
-      });
-
-      popupContent.appendChild(popupText);
-      popupContent.appendChild(popupButton);
-      popup.appendChild(popupContent);
-      document.body.appendChild(popup);
     }
   </script>
 </head>
@@ -263,6 +214,10 @@
       <input type="checkbox" onclick="toggleDarkMode()">
       <span class="toggle-slider round" id="toggle-switch"></span>
     </label>
+  </div>
+
+  <div class="incorrect-password-popup" id="incorrect-password-popup">
+    Incorrect password!
   </div>
 </body>
 </html>
