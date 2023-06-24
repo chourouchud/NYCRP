@@ -157,19 +157,33 @@
       z-index: 999;
     }
 
-    .popup-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .popup-text {
+    .popup {
+    width: calc(100% - 20px);
+    padding: 10px;
     margin-bottom: 10px;
-    text-align: center;
-    font-size: 18px; /* Adjust the font size as per your preference */
-    font-weight: bold; /* Add font weight for emphasis */
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    background-color: var(--container-bg-color);
+    color: var(--text-color);
   }
 
+  .popup.dark-mode {
+    background-color: transparent;
+    color: transparent;
+  }
+
+  .popup-text {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+    transition: color 0.3s;
+  }
+
+  .popup-text.dark-mode {
+    color: transparent;
+  }
+    
     .popup-button {
       padding: 8px 16px;
       background-color: #4CAF50;
