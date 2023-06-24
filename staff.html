@@ -143,6 +143,26 @@
     .dark-mode-label {
       color: #ffffff;
     }
+
+    .incorrect-password-popup {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      padding: 10px;
+      background-color: var(--container-bg-color);
+      color: var(--text-color);
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+      display: none;
+    }
+
+    body.dark-mode .incorrect-password-popup {
+      background-color: #333333;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
   </style>
   <script>
     var _0x55a6 = ["\x76\x61\x6C\x75\x65", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F", "\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64", "\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"];
@@ -154,8 +174,21 @@
       } else if (password === String.fromCharCode(49, 50, 51, 52)) {
         window.location.href = _0x55a6[2];
       } else {
-        alert(_0x55a6[4]);
+        showIncorrectPasswordPopup();
       }
+    }
+
+    function showIncorrectPasswordPopup() {
+      var popup = document.getElementById("incorrect-password-popup");
+      popup.style.display = "block";
+      setTimeout(function() {
+        hideIncorrectPasswordPopup();
+      }, 4000);
+    }
+
+    function hideIncorrectPasswordPopup() {
+      var popup = document.getElementById("incorrect-password-popup");
+      popup.style.display = "none";
     }
 
     function toggleDarkMode() {
@@ -192,5 +225,10 @@
       <span class="toggle-slider round" id="toggle-switch"></span>
     </label>
   </div>
+
+  <div class="incorrect-password-popup" id="incorrect-password-popup">
+    Incorrect password. Please try again.
+  </div>
 </body>
 </html>
+
