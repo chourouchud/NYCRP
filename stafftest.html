@@ -147,13 +147,15 @@
     .incorrect-password-popup {
       display: none;
       position: absolute;
-      width: 200px; /* Adjust the width as desired */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       padding: 10px;
       background-color: var(--container-bg-color);
-      color: var(--text-color);
       border: 1px solid #cccccc;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 999;
     }
 
     .incorrect-password-popup.show {
@@ -161,9 +163,9 @@
     }
 
     .incorrect-password-popup.dark-mode {
-      background-color: #333333;
-      color: #ffffff;
-      border-color: #ffffff;
+      color: var(--container-bg-color);
+      background-color: var(--text-color);
+      border-color: var(--text-color);
     }
   </style>
   <script>
@@ -176,9 +178,17 @@
       } else if (password === String.fromCharCode(49, 50, 51, 52)) {
         window.location.href = _0x55a6[2];
       } else {
-        var popup = document.getElementById("incorrect-password-popup");
-        popup.classList.add("show");
+        showIncorrectPasswordPopup();
       }
+    }
+
+    function showIncorrectPasswordPopup() {
+      var popup = document.getElementById("incorrect-password-popup");
+      popup.classList.add("show");
+
+      setTimeout(function() {
+        popup.classList.remove("show");
+      }, 4000);
     }
 
     function toggleDarkMode() {
@@ -217,7 +227,7 @@
   </div>
 
   <div class="incorrect-password-popup" id="incorrect-password-popup">
-    Incorrect password!
+    Incorrect Password!
   </div>
 </body>
 </html>
