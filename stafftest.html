@@ -145,27 +145,23 @@
     }
 
     .incorrect-password-popup {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
       padding: 10px;
       background-color: var(--container-bg-color);
+      color: var(--text-color);
       border: 1px solid #cccccc;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 999;
+      transition: background-color 0.3s;
+      display: none;
     }
 
-    .incorrect-password-popup.show {
-      display: block;
-    }
-
-    .incorrect-password-popup.dark-mode {
-      color: var(--container-bg-color);
-      background-color: var(--text-color);
-      border-color: var(--text-color);
+    body.dark-mode .incorrect-password-popup {
+      background-color: #333333;
+      color: #ffffff;
+      border-color: #ffffff;
     }
   </style>
   <script>
@@ -184,11 +180,15 @@
 
     function showIncorrectPasswordPopup() {
       var popup = document.getElementById("incorrect-password-popup");
-      popup.classList.add("show");
-
+      popup.style.display = "block";
       setTimeout(function() {
-        popup.classList.remove("show");
+        hideIncorrectPasswordPopup();
       }, 4000);
+    }
+
+    function hideIncorrectPasswordPopup() {
+      var popup = document.getElementById("incorrect-password-popup");
+      popup.style.display = "none";
     }
 
     function toggleDarkMode() {
@@ -227,7 +227,8 @@
   </div>
 
   <div class="incorrect-password-popup" id="incorrect-password-popup">
-    Incorrect Password!
+    Incorrect password. Please try again.
   </div>
 </body>
 </html>
+
