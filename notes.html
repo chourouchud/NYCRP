@@ -2,152 +2,265 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Note Taking App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
       margin: 0;
       padding: 20px;
     }
 
     h1 {
+      color: #333;
       text-align: center;
-      margin-bottom: 20px;
+      margin-top: 0;
     }
 
-    .note-input-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .note-input-container input[type="text"] {
-      flex-grow: 1;
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .note-input-container button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-
-    .note-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #f0f0f0;
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
       border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #note-input {
+      width: 100%;
       padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       margin-bottom: 10px;
     }
 
-    .note-text {
-      flex-grow: 1;
-      font-size: 16px;
+    .note {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      position: relative;
     }
 
-    .note-actions button {
+    .note p {
+      margin: 0;
+    }
+
+    .note-buttons {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+    }
+
+    .note-buttons button {
+      margin-left: 5px;
       padding: 5px 10px;
       font-size: 14px;
-      background-color: #e60000;
-      color: #fff;
       border: none;
+      border-radius: 4px;
+      background-color: #333;
+      color: #fff;
       cursor: pointer;
-      margin-left: 10px;
+    }
+
+    .delete-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .clear-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .popup h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .popup-buttons {
+      text-align: right;
+    }
+
+    .popup-buttons button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <h1>Note Taking App</h1>
-  <div class="note-input-container">
+  <div class="container">
+    <h1>Note Taking App</h1>
     <input type="text" id="note-input" placeholder="Enter your note">
-    <button id="add-note">Add Note</button>
+    <button id="add-button">Add Note</button>
+    <div id="notes-container"></div>
+    <button id="clear-button">Clear All Notes</button>
   </div>
-  <div id="note-list">
-    <!-- Notes will be dynamically added here -->
+
+  <div id="delete-popup" class="popup">
+    <h2>Confirmation</h2>
+    <p>Are you sure you want to delete this note?</p>
+    <div class="popup-buttons">
+      <button id="confirm-delete">Yes</button>
+      <button id="cancel-delete">No</button>
+    </div>
   </div>
+
+  <div id="clear-popup" class="popup">
+    <h2>Confirmation</h2>
+    <p>Are you sure you want to delete all the notes?</p>
+    <div class="popup-buttons">
+      <button id="confirm-clear">Yes</button>
+      <button id="cancel-clear">No</button>
+    </div>
+  </div>
+
+  <div class="overlay"></div>
 
   <script>
-    const noteInput = document.getElementById("note-input");
-    const addNoteButton = document.getElementById("add-note");
-    const noteList = document.getElementById("note-list");
+    // Get references to elements
+    const noteInput = document.getElementById('note-input');
+    const addButton = document.getElementById('add-button');
+    const notesContainer = document.getElementById('notes-container');
+    const deletePopup = document.getElementById('delete-popup');
+    const clearPopup = document.getElementById('clear-popup');
+    const confirmDelete = document.getElementById('confirm-delete');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmClear = document.getElementById('confirm-clear');
+    const cancelClear = document.getElementById('cancel-clear');
+    const overlay = document.querySelector('.overlay');
+
+    // Notes array
     let notes = [];
 
-    function createNoteElement(note) {
-      const noteItem = document.createElement("div");
-      noteItem.classList.add("note-item");
-
-      const noteText = document.createElement("div");
-      noteText.classList.add("note-text");
-      noteText.textContent = note;
-
-      const noteActions = document.createElement("div");
-      noteActions.classList.add("note-actions");
-
-      const editButton = document.createElement("button");
-      editButton.textContent = "Edit";
-      editButton.addEventListener("click", function () {
-        const newNote = prompt("Edit the note:", note);
-        if (newNote !== null) {
-          const index = notes.indexOf(note);
-          notes[index] = newNote;
-          noteText.textContent = newNote;
-        }
-      });
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.addEventListener("click", function () {
-        const confirmDelete = confirm("Are you sure you want to delete this note?");
-        if (confirmDelete) {
-          deleteNoteAndRefresh(note);
-        }
-      });
-
-      noteActions.appendChild(editButton);
-      noteActions.appendChild(deleteButton);
-
-      noteItem.appendChild(noteText);
-      noteItem.appendChild(noteActions);
-
-      return noteItem;
-    }
-
-    function deleteNoteAndRefresh(note) {
-      const index = notes.indexOf(note);
-      if (index !== -1) {
-        notes.splice(index, 1);
-        refreshNoteList();
+    // Add note
+    function addNote() {
+      const noteText = noteInput.value.trim();
+      if (noteText !== '') {
+        notes.push(noteText);
+        noteInput.value = '';
+        renderNotes();
       }
     }
 
-    function refreshNoteList() {
-      noteList.innerHTML = "";
-      notes.forEach(function (note) {
-        const noteElement = createNoteElement(note);
-        noteList.appendChild(noteElement);
+    // Render notes
+    function renderNotes() {
+      notesContainer.innerHTML = '';
+      notes.forEach((note, index) => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note';
+        noteElement.innerHTML = `
+          <p>${note}</p>
+          <div class="note-buttons">
+            <button class="edit-button">Edit</button>
+            <button class="delete-button">Delete</button>
+          </div>
+        `;
+        const deleteButton = noteElement.querySelector('.delete-button');
+        const editButton = noteElement.querySelector('.edit-button');
+        deleteButton.addEventListener('click', () => showDeletePopup(index));
+        editButton.addEventListener('click', () => editNoteText(index));
+        notesContainer.appendChild(noteElement);
       });
     }
 
-    addNoteButton.addEventListener("click", function () {
-      const note = noteInput.value;
-      if (note !== "") {
-        notes.push(note);
-        noteInput.value = "";
-        refreshNoteList();
-      }
-    });
+    // Show delete popup
+    function showDeletePopup(index) {
+      overlay.style.display = 'block';
+      deletePopup.style.display = 'block';
+      confirmDelete.addEventListener('click', () => deleteNoteAndClosePopup(index));
+      cancelDelete.addEventListener('click', hideDeletePopup);
+    }
 
-    // Initial rendering
-    refreshNoteList();
+    // Hide delete popup
+    function hideDeletePopup() {
+      overlay.style.display = 'none';
+      deletePopup.style.display = 'none';
+      confirmDelete.removeEventListener('click', () => deleteNoteAndClosePopup());
+      cancelDelete.removeEventListener('click', hideDeletePopup);
+    }
+
+    // Delete note and close popup
+    function deleteNoteAndClosePopup(index) {
+      notes.splice(index, 1);
+      hideDeletePopup();
+      renderNotes();
+    }
+
+    // Show clear popup
+    function showClearPopup() {
+      overlay.style.display = 'block';
+      clearPopup.style.display = 'block';
+      confirmClear.addEventListener('click', clearAllNotes);
+      cancelClear.addEventListener('click', hideClearPopup);
+    }
+
+    // Hide clear popup
+    function hideClearPopup() {
+      overlay.style.display = 'none';
+      clearPopup.style.display = 'none';
+      confirmClear.removeEventListener('click', clearAllNotes);
+      cancelClear.removeEventListener('click', hideClearPopup);
+    }
+
+    // Clear all notes
+    function clearAllNotes() {
+      notes = [];
+      hideClearPopup();
+      renderNotes();
+    }
+
+    // Edit note text
+    function editNoteText(index) {
+      const newNoteText = prompt('Enter the new note text:');
+      if (newNoteText !== null) {
+        notes[index] = newNoteText;
+        renderNotes();
+      }
+    }
+
+    // Add note event listener
+    addButton.addEventListener('click', addNote);
+
+    // Clear all notes event listener
+    clearButton.addEventListener('click', showClearPopup);
+
+    // Render initial notes
+    renderNotes();
   </script>
 </body>
 
