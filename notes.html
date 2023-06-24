@@ -21,6 +21,10 @@
       margin-top: 0;
     }
     
+    .note-container {
+      margin-top: 20px;
+    }
+    
     .note {
       margin-bottom: 10px;
       padding: 10px;
@@ -77,16 +81,19 @@
       display: none;
     }
     
-    .delete-popup h2 {
+    .delete-popup h2,
+    .clear-popup h2 {
       margin-top: 0;
     }
     
-    .delete-popup-buttons {
+    .delete-popup-buttons,
+    .clear-popup-buttons {
       margin-top: 20px;
       text-align: center;
     }
     
-    .delete-popup-buttons button {
+    .delete-popup-buttons button,
+    .clear-popup-buttons button {
       padding: 5px 10px;
       border: none;
       border-radius: 3px;
@@ -108,13 +115,15 @@
 <body>
   <div class="container">
     <h1>Forever Notes</h1>
-    <div id="notes-container"></div>
-    <div class="note">
-      <textarea id="note-input" rows="4" placeholder="Enter your note"></textarea>
-      <div class="note-buttons">
-        <button id="add-button">Add Note</button>
-        <button id="clear-button" class="clear-button">Clear All Notes</button>
+    <div class="note-container">
+      <div class="note">
+        <textarea id="note-input" rows="4" placeholder="Enter your note"></textarea>
+        <div class="note-buttons">
+          <button id="add-button">Add Note</button>
+          <button id="clear-button" class="clear-button">Clear All Notes</button>
+        </div>
       </div>
+      <div id="notes-container"></div>
     </div>
   </div>
 
@@ -123,6 +132,14 @@
     <div class="delete-popup-buttons">
       <button id="delete-yes">Yes</button>
       <button id="delete-no">No</button>
+    </div>
+  </div>
+
+  <div class="clear-popup" id="clear-popup">
+    <h2>Are you sure you want to delete all the notes?</h2>
+    <div class="clear-popup-buttons">
+      <button id="clear-yes">Yes</button>
+      <button id="clear-no">No</button>
     </div>
   </div>
 
@@ -202,21 +219,42 @@
       renderNotes();
     }
 
-    function clearAllNotes() {
-      if (confirm('Are you sure you want to delete all the notes?')) {
-        savedNotes = [];
-        localStorage.removeItem('notes');
-        renderNotes();
+    function showClearPopup() {
+      const clearPopup = document.getElementById('clear-popup');
+      const overlay = document.getElementById('overlay');
+
+      overlay.style.display = 'block';
+      clearPopup.style.display = 'block';
+
+      const clearYesButton = document.getElementById('clear-yes');
+      const clearNoButton = document.getElementById('clear-no');
+
+      clearYesButton.onclick = function () {
+        clearAllNotes();
+        hideClearPopup();
+      };
+
+      clearNoButton.onclick = hideClearPopup;
+
+      function hideClearPopup() {
+        overlay.style.display = 'none';
+        clearPopup.style.display = 'none';
       }
+    }
+
+    function clearAllNotes() {
+      savedNotes = [];
+      localStorage.removeItem('notes');
+      renderNotes();
     }
 
     // Add event listener to the Add Note button
     document.getElementById('add-button').addEventListener('click', addNote);
 
     // Add event listener to the Clear All Notes button
-    document.getElementById('clear-button').addEventListener('click', clearAllNotes);
+    document.getElementById('clear-button').addEventListener('click', showClearPopup);
 
-    // Initial rendering of notes
+    // Render existing notes on page load
     renderNotes();
   </script>
 </body>
