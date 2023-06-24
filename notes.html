@@ -3,253 +3,152 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Taking App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
     }
 
     h1 {
       text-align: center;
+      margin-bottom: 20px;
     }
 
-    .container {
-      width: 400px;
-      margin: 20px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    .note-input {
-      width: 100%;
-      padding: 5px;
+    .note-input-container {
+      display: flex;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
-    .note-list {
-      margin-top: 10px;
+    .note-input-container input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .note-input-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
     }
 
     .note-item {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      padding: 5px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .note-item .note-text {
-      flex: 1;
-    }
-
-    .note-item .note-actions {
-      display: flex;
-      align-items: center;
-    }
-
-    .note-item .note-actions button {
-      margin-left: 5px;
-    }
-
-    .popup {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .popup-content {
-      background-color: #fff;
-      padding: 20px;
+      background-color: #f0f0f0;
       border-radius: 5px;
-      max-width: 300px;
-      text-align: center;
+      padding: 10px;
+      margin-bottom: 10px;
     }
 
-    .popup-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
+    .note-text {
+      flex-grow: 1;
+      font-size: 16px;
     }
 
-    .popup-buttons button {
-      margin: 0 10px;
+    .note-actions button {
+      padding: 5px 10px;
+      font-size: 14px;
+      background-color: #e60000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
     }
   </style>
 </head>
 
 <body>
-  <h1>Notes</h1>
-  <div class="container">
-    <input type="text" class="note-input" placeholder="Enter a note">
-    <div class="note-list"></div>
-    <div class="popup" id="deletePopup">
-      <div class="popup-content">
-        <p>Are you sure you want to delete this note?</p>
-        <div class="popup-buttons">
-          <button class="delete-yes">Yes</button>
-          <button class="delete-no">No</button>
-        </div>
-      </div>
-    </div>
-    <div class="popup" id="clearPopup">
-      <div class="popup-content">
-        <p>Are you sure you want to delete all the notes?</p>
-        <div class="popup-buttons">
-          <button class="clear-yes">Yes</button>
-          <button class="clear-no">No</button>
-        </div>
-      </div>
-    </div>
-    <button class="clear-all">Clear All Notes</button>
+  <h1>Note Taking App</h1>
+  <div class="note-input-container">
+    <input type="text" id="note-input" placeholder="Enter your note">
+    <button id="add-note">Add Note</button>
+  </div>
+  <div id="note-list">
+    <!-- Notes will be dynamically added here -->
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const noteInput = document.querySelector(".note-input");
-      const noteList = document.querySelector(".note-list");
-      const clearAllButton = document.querySelector(".clear-all");
-      const deletePopup = document.getElementById("deletePopup");
-      const clearPopup = document.getElementById("clearPopup");
-      const deleteYesButton = document.querySelector(".delete-yes");
-      const deleteNoButton = document.querySelector(".delete-no");
-      const clearYesButton = document.querySelector(".clear-yes");
-      const clearNoButton = document.querySelector(".clear-no");
+    const noteInput = document.getElementById("note-input");
+    const addNoteButton = document.getElementById("add-note");
+    const noteList = document.getElementById("note-list");
+    let notes = [];
 
-      let notes = [];
+    function createNoteElement(note) {
+      const noteItem = document.createElement("div");
+      noteItem.classList.add("note-item");
 
-      function createNoteElement(note) {
-        const noteItem = document.createElement("div");
-        noteItem.classList.add("note-item");
+      const noteText = document.createElement("div");
+      noteText.classList.add("note-text");
+      noteText.textContent = note;
 
-        const noteText = document.createElement("div");
-        noteText.classList.add("note-text");
-        noteText.textContent = note;
+      const noteActions = document.createElement("div");
+      noteActions.classList.add("note-actions");
 
-        const noteActions = document.createElement("div");
-        noteActions.classList.add("note-actions");
-
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.addEventListener("click", function() {
-          const newNote = prompt("Edit the note:", note);
-          if (newNote !== null) {
-            const index = notes.indexOf(note);
-            notes[index] = newNote;
-            noteText.textContent = newNote;
-          }
-        });
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.addEventListener("click", function() {
-          showDeletePopup(note);
-        });
-
-        noteActions.appendChild(editButton);
-        noteActions.appendChild(deleteButton);
-
-        noteItem.appendChild(noteText);
-        noteItem.appendChild(noteActions);
-
-        return noteItem;
-      }
-
-      function showDeletePopup(note) {
-        const popupContent = deletePopup.querySelector(".popup-content");
-        const deleteYesButton = deletePopup.querySelector(".delete-yes");
-        const deleteNoButton = deletePopup.querySelector(".delete-no");
-
-        deleteYesButton.addEventListener("click", function() {
-          deleteNoteAndRefresh(note);
-          hideDeletePopup();
-        });
-
-        deleteNoButton.addEventListener("click", function() {
-          hideDeletePopup();
-        });
-
-        popupContent.textContent = `Are you sure you want to delete this note: "${note}"?`;
-        deletePopup.style.display = "flex";
-      }
-
-      function hideDeletePopup() {
-        deletePopup.style.display = "none";
-        deleteYesButton.removeEventListener("click", deleteNoteAndRefresh);
-        deleteNoButton.removeEventListener("click", hideDeletePopup);
-      }
-
-      function deleteNoteAndRefresh(note) {
-        const index = notes.indexOf(note);
-        if (index !== -1) {
-          notes.splice(index, 1);
-          refreshNoteList();
+      const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", function () {
+        const newNote = prompt("Edit the note:", note);
+        if (newNote !== null) {
+          const index = notes.indexOf(note);
+          notes[index] = newNote;
+          noteText.textContent = newNote;
         }
-      }
+      });
 
-      function showClearPopup() {
-        const popupContent = clearPopup.querySelector(".popup-content");
-        const clearYesButton = clearPopup.querySelector(".clear-yes");
-        const clearNoButton = clearPopup.querySelector(".clear-no");
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", function () {
+        const confirmDelete = confirm("Are you sure you want to delete this note?");
+        if (confirmDelete) {
+          deleteNoteAndRefresh(note);
+        }
+      });
 
-        clearYesButton.addEventListener("click", function() {
-          clearAllNotesAndRefresh();
-          hideClearPopup();
-        });
+      noteActions.appendChild(editButton);
+      noteActions.appendChild(deleteButton);
 
-        clearNoButton.addEventListener("click", function() {
-          hideClearPopup();
-        });
+      noteItem.appendChild(noteText);
+      noteItem.appendChild(noteActions);
 
-        popupContent.textContent = "Are you sure you want to delete all the notes?";
-        clearPopup.style.display = "flex";
-      }
+      return noteItem;
+    }
 
-      function hideClearPopup() {
-        clearPopup.style.display = "none";
-        clearYesButton.removeEventListener("click", clearAllNotesAndRefresh);
-        clearNoButton.removeEventListener("click", hideClearPopup);
-      }
-
-      function clearAllNotesAndRefresh() {
-        notes = [];
+    function deleteNoteAndRefresh(note) {
+      const index = notes.indexOf(note);
+      if (index !== -1) {
+        notes.splice(index, 1);
         refreshNoteList();
       }
+    }
 
-      function refreshNoteList() {
-        noteList.innerHTML = "";
-        notes.forEach(function(note) {
-          const noteElement = createNoteElement(note);
-          noteList.appendChild(noteElement);
-        });
+    function refreshNoteList() {
+      noteList.innerHTML = "";
+      notes.forEach(function (note) {
+        const noteElement = createNoteElement(note);
+        noteList.appendChild(noteElement);
+      });
+    }
+
+    addNoteButton.addEventListener("click", function () {
+      const note = noteInput.value;
+      if (note !== "") {
+        notes.push(note);
+        noteInput.value = "";
+        refreshNoteList();
       }
-
-      noteInput.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-          const note = noteInput.value.trim();
-          if (note !== "") {
-            notes.push(note);
-            refreshNoteList();
-            noteInput.value = "";
-          }
-        }
-      });
-
-      clearAllButton.addEventListener("click", function() {
-        showClearPopup();
-      });
-
-      refreshNoteList();
     });
+
+    // Initial rendering
+    refreshNoteList();
   </script>
 </body>
 
 </html>
-
