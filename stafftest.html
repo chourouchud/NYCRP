@@ -143,6 +143,39 @@
     .dark-mode-label {
       color: #ffffff;
     }
+
+    /* Custom Popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    .popup-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .popup-text {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .popup-button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: #ffffff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   </style>
   <script>
     var _0x55a6 = ["\x76\x61\x6C\x75\x65", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F", "\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64", "\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"];
@@ -154,7 +187,7 @@
       } else if (password === String.fromCharCode(49, 50, 51, 52)) {
         window.location.href = _0x55a6[2];
       } else {
-        alert(_0x55a6[4]);
+        showPopup(_0x55a6[4]);
       }
     }
 
@@ -171,6 +204,30 @@
       } else {
         toggleLabel.textContent = "Dark Mode";
       }
+    }
+
+    function showPopup(message) {
+      var popup = document.createElement("div");
+      popup.className = "popup";
+
+      var popupContent = document.createElement("div");
+      popupContent.className = "popup-content";
+
+      var popupText = document.createElement("p");
+      popupText.className = "popup-text";
+      popupText.textContent = message;
+
+      var popupButton = document.createElement("button");
+      popupButton.className = "popup-button";
+      popupButton.textContent = "OK";
+      popupButton.addEventListener("click", function() {
+        document.body.removeChild(popup);
+      });
+
+      popupContent.appendChild(popupText);
+      popupContent.appendChild(popupButton);
+      popup.appendChild(popupContent);
+      document.body.appendChild(popup);
     }
   </script>
 </head>
