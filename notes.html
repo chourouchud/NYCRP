@@ -1,106 +1,115 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Forever Notes</title>
+  <title>Note Taking App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
+      background-color: #f1f1f1;
       margin: 0;
-      padding: 0;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
       padding: 20px;
     }
-    
+
     h1 {
+      color: #333;
       text-align: center;
       margin-top: 0;
     }
-    
-    .note-container {
-      margin-top: 20px;
-    }
-    
-    .note {
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #ffffff;
-      border: 1px solid #cccccc;
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
       border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #note-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .note {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
       position: relative;
     }
-    
+
     .note p {
       margin: 0;
     }
-    
+
     .note-buttons {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
     }
-    
-    .edit-button,
-    .delete-button,
-    .clear-button {
+
+    .note-buttons button {
+      margin-left: 5px;
       padding: 5px 10px;
+      font-size: 14px;
       border: none;
-      border-radius: 3px;
+      border-radius: 4px;
+      background-color: #333;
+      color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-    
-    .edit-button {
-      background-color: #4caf50;
-      color: #ffffff;
-    }
-    
-    .delete-button {
-      background-color: #f44336;
-      color: #ffffff;
-    }
-    
-    .clear-button {
-      background-color: #ff9800;
-      color: #ffffff;
-    }
-    
+
     .delete-popup {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #ffffff;
+      background-color: #fff;
       padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       display: none;
     }
-    
-    .delete-popup h2,
-    .clear-popup h2 {
+
+    .clear-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .popup h2 {
       margin-top: 0;
+      margin-bottom: 10px;
+      color: #333;
     }
-    
-    .delete-popup-buttons,
-    .clear-popup-buttons {
-      margin-top: 20px;
-      text-align: center;
+
+    .popup-buttons {
+      text-align: right;
     }
-    
-    .delete-popup-buttons button,
-    .clear-popup-buttons button {
+
+    .popup-buttons button {
+      margin-left: 5px;
       padding: 5px 10px;
+      font-size: 14px;
       border: none;
-      border-radius: 3px;
+      border-radius: 4px;
+      background-color: #333;
+      color: #fff;
       cursor: pointer;
-      margin: 0 10px;
     }
-    
+
     .overlay {
       position: fixed;
       top: 0;
@@ -112,150 +121,147 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <h1>Forever Notes</h1>
-    <div class="note-container">
-      <div class="note">
-        <textarea id="note-input" rows="4" placeholder="Enter your note"></textarea>
-        <div class="note-buttons">
-          <button id="add-button">Add Note</button>
-          <button id="clear-button" class="clear-button">Clear All Notes</button>
-        </div>
-      </div>
-      <div id="notes-container"></div>
+    <h1>Note Taking App</h1>
+    <input type="text" id="note-input" placeholder="Enter your note">
+    <button id="add-button">Add Note</button>
+    <div id="notes-container"></div>
+    <button id="clear-button">Clear All Notes</button>
+  </div>
+
+  <div id="delete-popup" class="popup">
+    <h2>Confirmation</h2>
+    <p>Are you sure you want to delete this note?</p>
+    <div class="popup-buttons">
+      <button id="confirm-delete">Yes</button>
+      <button id="cancel-delete">No</button>
     </div>
   </div>
 
-  <div class="delete-popup" id="delete-popup">
-    <h2>Are you sure you want to delete this note?</h2>
-    <div class="delete-popup-buttons">
-      <button id="delete-yes">Yes</button>
-      <button id="delete-no">No</button>
+  <div id="clear-popup" class="popup">
+    <h2>Confirmation</h2>
+    <p>Are you sure you want to delete all the notes?</p>
+    <div class="popup-buttons">
+      <button id="confirm-clear">Yes</button>
+      <button id="cancel-clear">No</button>
     </div>
   </div>
 
-  <div class="clear-popup" id="clear-popup">
-    <h2>Are you sure you want to delete all the notes?</h2>
-    <div class="clear-popup-buttons">
-      <button id="clear-yes">Yes</button>
-      <button id="clear-no">No</button>
-    </div>
-  </div>
-
-  <div class="overlay" id="overlay"></div>
+  <div class="overlay"></div>
 
   <script>
-    let savedNotes = JSON.parse(localStorage.getItem('notes')) || [];
+    // Get references to elements
+    const noteInput = document.getElementById('note-input');
+    const addButton = document.getElementById('add-button');
+    const notesContainer = document.getElementById('notes-container');
+    const deletePopup = document.getElementById('delete-popup');
+    const clearPopup = document.getElementById('clear-popup');
+    const confirmDelete = document.getElementById('confirm-delete');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmClear = document.getElementById('confirm-clear');
+    const cancelClear = document.getElementById('cancel-clear');
+    const overlay = document.querySelector('.overlay');
 
-    function renderNotes() {
-      const notesContainer = document.getElementById('notes-container');
-      notesContainer.innerHTML = '';
+    // Notes array
+    let notes = [];
 
-      savedNotes.forEach((note, index) => {
-        const noteElement = document.createElement('div');
-        noteElement.className = 'note';
-        noteElement.innerHTML = `
-          <p>${note}</p>
-          <div class="note-buttons">
-            <button class="edit-button" onclick="editNote(${index})">Edit</button>
-            <button class="delete-button" onclick="showDeletePopup(${index})">Delete</button>
-          </div>
-        `;
-
-        notesContainer.appendChild(noteElement);
-      });
-    }
-
+    // Add note
     function addNote() {
-      const noteInput = document.getElementById('note-input');
-      const note = noteInput.value.trim();
-
-      if (note) {
-        savedNotes.push(note);
-        localStorage.setItem('notes', JSON.stringify(savedNotes));
+      const noteText = noteInput.value.trim();
+      if (noteText !== '') {
+        notes.push(noteText);
         noteInput.value = '';
         renderNotes();
       }
     }
 
-    function editNote(index) {
-      const note = savedNotes[index];
-      const newNote = prompt('Edit the note:', note);
+    // Render notes
+    function renderNotes() {
+      notesContainer.innerHTML = '';
+      notes.forEach((note, index) => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note';
+        noteElement.innerHTML = `
+          <p>${note}</p>
+          <div class="note-buttons">
+            <button class="edit-button">Edit</button>
+            <button class="delete-button">Delete</button>
+          </div>
+        `;
+        const deleteButton = noteElement.querySelector('.delete-button');
+        const editButton = noteElement.querySelector('.edit-button');
+        deleteButton.addEventListener('click', () => showDeletePopup(index));
+        editButton.addEventListener('click', () => editNoteText(index));
+        notesContainer.appendChild(noteElement);
+      });
+    }
 
-      if (newNote) {
-        savedNotes[index] = newNote;
-        localStorage.setItem('notes', JSON.stringify(savedNotes));
+    // Show delete popup
+    function showDeletePopup(index) {
+      overlay.style.display = 'block';
+      deletePopup.style.display = 'block';
+      confirmDelete.addEventListener('click', () => deleteNoteAndClosePopup(index));
+      cancelDelete.addEventListener('click', hideDeletePopup);
+    }
+
+    // Hide delete popup
+    function hideDeletePopup() {
+      overlay.style.display = 'none';
+      deletePopup.style.display = 'none';
+      confirmDelete.removeEventListener('click', () => deleteNoteAndClosePopup());
+      cancelDelete.removeEventListener('click', hideDeletePopup);
+    }
+
+    // Delete note and close popup
+    function deleteNoteAndClosePopup(index) {
+      notes.splice(index, 1);
+      hideDeletePopup();
+      renderNotes();
+    }
+
+    // Show clear popup
+    function showClearPopup() {
+      overlay.style.display = 'block';
+      clearPopup.style.display = 'block';
+      confirmClear.addEventListener('click', clearAllNotes);
+      cancelClear.addEventListener('click', hideClearPopup);
+    }
+
+    // Hide clear popup
+    function hideClearPopup() {
+      overlay.style.display = 'none';
+      clearPopup.style.display = 'none';
+      confirmClear.removeEventListener('click', clearAllNotes);
+      cancelClear.removeEventListener('click', hideClearPopup);
+    }
+
+    // Clear all notes
+    function clearAllNotes() {
+      notes = [];
+      hideClearPopup();
+      renderNotes();
+    }
+
+    // Edit note text
+    function editNoteText(index) {
+      const newNoteText = prompt('Enter the new note text:');
+      if (newNoteText !== null) {
+        notes[index] = newNoteText;
         renderNotes();
       }
     }
 
-    function showDeletePopup(index) {
-      const deletePopup = document.getElementById('delete-popup');
-      const overlay = document.getElementById('overlay');
+    // Add note event listener
+    addButton.addEventListener('click', addNote);
 
-      overlay.style.display = 'block';
-      deletePopup.style.display = 'block';
+    // Clear all notes event listener
+    clearButton.addEventListener('click', showClearPopup);
 
-      const deleteYesButton = document.getElementById('delete-yes');
-      const deleteNoButton = document.getElementById('delete-no');
-
-      deleteYesButton.onclick = function () {
-        deleteNote(index);
-        hideDeletePopup();
-      };
-
-      deleteNoButton.onclick = hideDeletePopup;
-
-      function hideDeletePopup() {
-        overlay.style.display = 'none';
-        deletePopup.style.display = 'none';
-      }
-    }
-
-    function deleteNote(index) {
-      savedNotes.splice(index, 1);
-      localStorage.setItem('notes', JSON.stringify(savedNotes));
-      renderNotes();
-    }
-
-    function showClearPopup() {
-      const clearPopup = document.getElementById('clear-popup');
-      const overlay = document.getElementById('overlay');
-
-      overlay.style.display = 'block';
-      clearPopup.style.display = 'block';
-
-      const clearYesButton = document.getElementById('clear-yes');
-      const clearNoButton = document.getElementById('clear-no');
-
-      clearYesButton.onclick = function () {
-        clearAllNotes();
-        hideClearPopup();
-      };
-
-      clearNoButton.onclick = hideClearPopup;
-
-      function hideClearPopup() {
-        overlay.style.display = 'none';
-        clearPopup.style.display = 'none';
-      }
-    }
-
-    function clearAllNotes() {
-      savedNotes = [];
-      localStorage.removeItem('notes');
-      renderNotes();
-    }
-
-    // Add event listener to the Add Note button
-    document.getElementById('add-button').addEventListener('click', addNote);
-
-    // Add event listener to the Clear All Notes button
-    document.getElementById('clear-button').addEventListener('click', showClearPopup);
-
-    // Render existing notes on page load
+    // Render initial notes
     renderNotes();
   </script>
 </body>
+
 </html>
