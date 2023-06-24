@@ -4,6 +4,22 @@
   <title>NYC:RP Staff</title>
   <link rel="shortcut icon" href="assets/images/new-nycrp-logo-128x128-1.png" type="image/x-icon">
   <style>
+    :root {
+      --bg-color: #f2f2f2;
+      --text-color: #000000;
+      --heading-color: #000000;
+      --container-bg-color: #ffffff;
+      --toggle-label-color: #000000;
+    }
+
+    body.dark-mode {
+      --bg-color: #181818;
+      --text-color: #ffffff;
+      --heading-color: #ffffff;
+      --container-bg-color: #333333;
+      --toggle-label-color: #ffffff;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: var(--bg-color);
@@ -13,16 +29,19 @@
 
     h1 {
       text-align: center;
+      color: var(--heading-color);
+      transition: color 0.3s;
     }
 
     .container {
       max-width: 400px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #ffffff;
+      background-color: var(--container-bg-color);
       border: 1px solid #cccccc;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
     }
 
     input[type="password"] {
@@ -66,6 +85,8 @@
     .toggle-label {
       margin-right: 10px;
       font-weight: bold;
+      color: var(--toggle-label-color);
+      transition: color 0.3s;
     }
 
     .toggle-switch {
@@ -122,19 +143,10 @@
     .dark-mode-label {
       color: #ffffff;
     }
-
-    .light-mode-label {
-      color: #000000;
-    }
-
-    .dark-mode {
-      --bg-color: #333333;
-      --text-color: #ffffff;
-    }
   </style>
   <script>
-    var _0x55a6=["\x76\x61\x6C\x75\x65","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F","\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64","\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"];
-    
+    var _0x55a6 = ["\x76\x61\x6C\x75\x65", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F", "\x68\x74\x74\x70\x73\x3A\x2F\x2F\x77\x77\x77\x2E\x79\x6F\x75\x74\x75\x62\x65\x2E\x63\x6F\x6D\x2F", "\x63\x68\x65\x63\x6B\x50\x61\x73\x73\x77\x6F\x72\x64", "\x49\x6E\x63\x6F\x72\x72\x65\x63\x74\x20\x50\x61\x73\x73\x77\x6F\x72\x64\x21"];
+
     function checkPassword() {
       var password = document.getElementById("password").value;
       if (password === String.fromCharCode(49, 50, 51)) {
@@ -145,19 +157,18 @@
         alert(_0x55a6[4]);
       }
     }
-    
+
     function toggleDarkMode() {
-      var body = document.body;
-      var toggleSwitch = document.getElementById("darkModeSwitch");
-      var toggleLabel = document.getElementById("toggleLabel");
-      
+      var body = document.getElementsByTagName("body")[0];
       body.classList.toggle("dark-mode");
-      
-      if (body.classList.contains("dark-mode")) {
-        toggleSwitch.checked = true;
+
+      var toggleLabel = document.getElementById("toggle-label");
+      var toggleSwitch = document.getElementById("toggle-switch");
+      var isDarkMode = body.classList.contains("dark-mode");
+
+      if (isDarkMode) {
         toggleLabel.textContent = "Light Mode";
       } else {
-        toggleSwitch.checked = false;
         toggleLabel.textContent = "Dark Mode";
       }
     }
@@ -165,7 +176,7 @@
 </head>
 <body oncontextmenu="return false">
   <div class="container">
-    <h1>Log In</h1>
+    <h1 id="login-heading">Log In</h1>
     <input type="password" id="password" placeholder="Enter password">
     <button onclick="checkPassword()">Enter</button>
   </div>
@@ -175,12 +186,11 @@
   </div>
 
   <div class="dark-mode-toggle">
-    <span class="toggle-label">Toggle:</span>
+    <span class="toggle-label" id="toggle-label">Dark Mode</span>
     <label class="toggle-switch">
-      <input type="checkbox" id="darkModeSwitch" onchange="toggleDarkMode()">
-      <span class="toggle-slider"></span>
+      <input type="checkbox" onclick="toggleDarkMode()">
+      <span class="toggle-slider round" id="toggle-switch"></span>
     </label>
-    <span id="toggleLabel" class="dark-mode-label">Dark Mode</span>
   </div>
 </body>
 </html>
