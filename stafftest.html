@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Password Verification</title>
+  <title>NYC:RP Staff</title>
+  <link rel="shortcut icon" href="assets/images/new-nycrp-logo-128x128-1.png" type="image/x-icon">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +19,7 @@
       max-width: 400px;
       margin: 0 auto;
       padding: 20px;
-      background-color: var(--container-bg-color);
+      background-color: #ffffff;
       border: 1px solid #cccccc;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -35,7 +36,7 @@
     button {
       width: 100%;
       padding: 10px;
-      background-color: var(--button-bg-color);
+      background-color: #4CAF50;
       color: #ffffff;
       border: none;
       border-radius: 3px;
@@ -43,7 +44,7 @@
     }
 
     button:hover {
-      background-color: var(--button-hover-bg-color);
+      background-color: #45a049;
     }
 
     .image-container {
@@ -58,9 +59,6 @@
     .dark-mode {
       --bg-color: #333333;
       --text-color: #ffffff;
-      --container-bg-color: #444444;
-      --button-bg-color: #555555;
-      --button-hover-bg-color: #666666;
     }
   </style>
   <script>
@@ -84,13 +82,13 @@
 </head>
 <body oncontextmenu="return false">
   <div class="container">
-    <h1>Password Verification</h1>
+    <h1>Log In</h1>
     <input type="password" id="password" placeholder="Enter password">
-    <button onclick="checkPassword()">Submit</button>
+    <button onclick="checkPassword()">Enter</button>
   </div>
-  
+
   <div class="image-container">
-    <img src="test.png" alt="Logo">
+    <img src="assets/images/new-nycrp-logo-128x128-1.png" alt="Logo">
   </div>
 
   <div class="toggle-container">
