@@ -64,6 +64,7 @@
       margin-left: 5px;
     }
     
+    .strike-log-item .edit-button,
     .strike-log-item .delete-button {
       background-color: #f44336;
       color: #fff;
@@ -73,8 +74,31 @@
       cursor: pointer;
     }
     
+    .strike-log-item .edit-button:hover,
     .strike-log-item .delete-button:hover {
       background-color: #d32f2f;
+    }
+    
+    .strike-log-item .edit-button {
+      background-color: #2196F3;
+    }
+    
+    .strike-log-item .edit-button:hover {
+      background-color: #1976D2;
+    }
+    
+    .strike-log-item .edit-input {
+      display: none;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    .strike-log-item .edit-actions {
+      display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -99,28 +123,33 @@
       <label for="approved-input">Approved by:</label>
       <input type="text" id="approved-input" placeholder="Enter approved by" required>
     </div>
-    <button id="create-button">Create Strike</button>
+    <button id="create-strike-button">Create Strike</button>
   </div>
   
   <div id="strike-log-container"></div>
-  
+
   <script>
-    // Strike Log data
-    let strikeLogData = [];
-    
-    // Create Strike Button
-    const createButton = document.getElementById('create-button');
-    
-    // Strike Log Container
     const strikeLogContainer = document.getElementById('strike-log-container');
-    
+    const strikeLogData = [];
+
+    // Load strike logs from local storage
+    if (localStorage.getItem('strikeLogs')) {
+      strikeLogData.push(...JSON.parse(localStorage.getItem('strikeLogs')));
+      renderStrikeLog();
+    }
+
+    // Save strike logs to local storage
+    function saveStrikeLogs() {
+      localStorage.setItem('strikeLogs', JSON.stringify(strikeLogData));
+    }
+
     // Create Strike
-    createButton.addEventListener('click', function() {
+    document.getElementById('create-strike-button').addEventListener('click', function() {
       const user = document.getElementById('user-input').value;
       const reason = document.getElementById('reason-input').value;
       const sequential = document.getElementById('sequential-input').value;
       const approvedBy = document.getElementById('approved-input').value;
-      
+
       // Validate input
       if (user && reason && sequential && approvedBy) {
         const strike = {
@@ -129,53 +158,175 @@
           sequential,
           approvedBy
         };
-        
+
         strikeLogData.push(strike);
-        
+
         renderStrikeLog();
-        
+
         // Clear input fields
         document.getElementById('user-input').value = '';
         document.getElementById('reason-input').value = '';
         document.getElementById('sequential-input').value = '';
         document.getElementById('approved-input').value = '';
+
+        saveStrikeLogs();
       }
     });
-    
+
+    // Edit Strike
+    function editStrike(index) {
+      const strikeItem = strikeLogContainer.children[index];
+
+      const userSpan = strikeItem.querySelector('.user-span');
+      const reasonSpan = strikeItem.querySelector('.reason-span');
+      const sequentialSpan = strikeItem.querySelector('.sequential-span');
+      const approvedBySpan = strikeItem.querySelector('.approvedby-span');
+
+      const user = userSpan.textContent;
+      const reason = reasonSpan.textContent;
+      const sequential = sequentialSpan.textContent;
+      const approvedBy = approvedBySpan.textContent;
+
+      const userInput = document.createElement('input');
+      userInput.type = 'text';
+      userInput.value = user;
+
+      const reasonInput = document.createElement('input');
+      reasonInput.type = 'text';
+      reasonInput.value = reason;
+
+      const sequentialInput = document.createElement('input');
+      sequentialInput.type = 'text';
+      sequentialInput.value = sequential;
+
+      const approvedByInput = document.createElement('input');
+      approvedByInput.type = 'text';
+      approvedByInput.value = approvedBy;
+
+      userSpan.replaceWith(userInput);
+      reasonSpan.replaceWith(reasonInput);
+      sequentialSpan.replaceWith(sequentialInput);
+      approvedBySpan.replaceWith(approvedByInput);
+
+      const editActions = strikeItem.querySelector('.edit-actions');
+      const editButton = strikeItem.querySelector('.edit-button');
+
+      editActions.style.display = 'flex';
+      editButton.style.display = 'none';
+    }
+
+    // Save Edited Strike
+    function saveEditedStrike(index) {
+      const strikeItem = strikeLogContainer.children[index];
+
+      const userInput = strikeItem.querySelector('input[type="text"]');
+      const reasonInput = strikeItem.querySelector('textarea');
+      const sequentialInput = strikeItem.querySelector('input[type="text"]');
+      const approvedByInput = strikeItem.querySelector('input[type="text"]');
+
+      const user = userInput.value;
+      const reason = reasonInput.value;
+      const sequential = sequentialInput.value;
+      const approvedBy = approvedByInput.value;
+
+      const userSpan = document.createElement('span');
+      userSpan.textContent = user;
+      userSpan.classList.add('user-span');
+
+      const reasonSpan = document.createElement('span');
+      reasonSpan.textContent = reason;
+      reasonSpan.classList.add('reason-span');
+
+      const sequentialSpan = document.createElement('span');
+      sequentialSpan.textContent = sequential;
+      sequentialSpan.classList.add('sequential-span');
+
+      const approvedBySpan = document.createElement('span');
+      approvedBySpan.textContent = approvedBy;
+      approvedBySpan.classList.add('approvedby-span');
+
+      userInput.replaceWith(userSpan);
+      reasonInput.replaceWith(reasonSpan);
+      sequentialInput.replaceWith(sequentialSpan);
+      approvedByInput.replaceWith(approvedBySpan);
+
+      const editActions = strikeItem.querySelector('.edit-actions');
+      const editButton = strikeItem.querySelector('.edit-button');
+
+      editActions.style.display = 'none';
+      editButton.style.display = 'inline-block';
+
+      // Update the strike log data
+      strikeLogData[index] = {
+        user,
+        reason,
+        sequential,
+        approvedBy
+      };
+
+      saveStrikeLogs();
+    }
+
     // Delete Strike
     function deleteStrike(index) {
-      strikeLogData.splice(index, 1);
-      renderStrikeLog();
+      if (confirm('Are you sure you want to delete this strike?')) {
+        strikeLogData.splice(index, 1);
+        renderStrikeLog();
+        saveStrikeLogs();
+      }
     }
-    
+
     // Render Strike Log
     function renderStrikeLog() {
       strikeLogContainer.innerHTML = '';
-      
-      strikeLogData.forEach(function(strike, index) {
+
+      strikeLogData.forEach((strike, index) => {
         const strikeItem = document.createElement('div');
-        strikeItem.classList.add('strike-log');
-        
-        strikeItem.innerHTML = `
-          <div class="strike-log-item">
-            <label>User:</label>
-            <span>${strike.user}</span>
-          </div>
-          <div class="strike-log-item">
-            <label>Reason:</label>
-            <span>${strike.reason}</span>
-          </div>
-          <div class="strike-log-item">
-            <label>Strike Sequential:</label>
-            <span>${strike.sequential}</span>
-          </div>
-          <div class="strike-log-item">
-            <label>Approved by:</label>
-            <span>${strike.approvedBy}</span>
-          </div>
-          <button class="delete-button" onclick="deleteStrike(${index})">Delete</button>
-        `;
-        
+        strikeItem.classList.add('strike-log-item');
+
+        const userSpan = document.createElement('span');
+        userSpan.textContent = strike.user;
+        userSpan.classList.add('user-span');
+
+        const reasonSpan = document.createElement('span');
+        reasonSpan.textContent = strike.reason;
+        reasonSpan.classList.add('reason-span');
+
+        const sequentialSpan = document.createElement('span');
+        sequentialSpan.textContent = strike.sequential;
+        sequentialSpan.classList.add('sequential-span');
+
+        const approvedBySpan = document.createElement('span');
+        approvedBySpan.textContent = strike.approvedBy;
+        approvedBySpan.classList.add('approvedby-span');
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('edit-button');
+        editButton.addEventListener('click', () => editStrike(index));
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save';
+        saveButton.classList.add('save-button');
+        saveButton.addEventListener('click', () => saveEditedStrike(index));
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('delete-button');
+        deleteButton.addEventListener('click', () => deleteStrike(index));
+
+        const editActions = document.createElement('div');
+        editActions.classList.add('edit-actions');
+        editActions.appendChild(saveButton);
+
+        strikeItem.appendChild(userSpan);
+        strikeItem.appendChild(reasonSpan);
+        strikeItem.appendChild(sequentialSpan);
+        strikeItem.appendChild(approvedBySpan);
+        strikeItem.appendChild(editButton);
+        strikeItem.appendChild(deleteButton);
+        strikeItem.appendChild(editActions);
+
         strikeLogContainer.appendChild(strikeItem);
       });
     }
