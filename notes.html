@@ -1,156 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Strike Logs</title>
   <style>
-    /* Add your professional styles here */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    .note-form {
+      max-width: 400px;
+      margin: 20px auto;
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    
+    .note-form input[type="text"],
+    .note-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    .note-form button {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .note-form button:hover {
+      background-color: #45a049;
+    }
+    
+    .strike-log {
+      max-width: 400px;
+      margin: 20px auto;
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    
+    .strike-log-item {
+      margin-bottom: 10px;
+    }
+    
+    .strike-log-item label {
+      font-weight: bold;
+    }
+    
+    .strike-log-item span {
+      margin-left: 5px;
+    }
+    
+    .strike-log-item .delete-button {
+      background-color: #f44336;
+      color: #fff;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .strike-log-item .delete-button:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
-
 <body>
   <h1>Strike Logs</h1>
-
-  <form id="note-form">
-    <input type="text" id="note-input" placeholder="Enter strike log text">
-    <button type="submit">Add Note</button>
-  </form>
-
-  <ul id="note-list"></ul>
-
-  <button id="clear-notes-button">Clear All Strikes</button>
-
-  <div class="popup-overlay" id="overlay"></div>
-  <div class="popup" id="popup">
-    <p class="popup-message" id="popup-message"></p>
-    <div class="popup-buttons">
-      <button id="popup-yes-button">Yes</button>
-      <button id="popup-no-button">No</button>
+  
+  <div class="note-form">
+    <h2>Create Strike</h2>
+    <div class="strike-log-item">
+      <label for="user-input">User:</label>
+      <input type="text" id="user-input" placeholder="Enter user" required>
     </div>
+    <div class="strike-log-item">
+      <label for="reason-input">Reason:</label>
+      <input type="text" id="reason-input" placeholder="Enter reason" required>
+    </div>
+    <div class="strike-log-item">
+      <label for="sequential-input">Strike Sequential:</label>
+      <input type="text" id="sequential-input" placeholder="Enter strike sequential" required>
+    </div>
+    <div class="strike-log-item">
+      <label for="approved-input">Approved by:</label>
+      <input type="text" id="approved-input" placeholder="Enter approved by" required>
+    </div>
+    <button id="create-button">Create Strike</button>
   </div>
-
+  
+  <div id="strike-log-container"></div>
+  
   <script>
-    const noteForm = document.getElementById("note-form");
-    const noteInput = document.getElementById("note-input");
-    const noteList = document.getElementById("note-list");
-    const clearNotesButton = document.getElementById("clear-notes-button");
-    const popup = document.getElementById("popup");
-    const overlay = document.getElementById("overlay");
-    const popupMessage = document.getElementById("popup-message");
-    const popupYesButton = document.getElementById("popup-yes-button");
-    const popupNoButton = document.getElementById("popup-no-button");
-
-    let notes = [];
-
-    function createNoteElement(note) {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <div class="note-content">
-          <p><strong>User:</strong> ${note.user}</p>
-          <p><strong>Reason:</strong> ${note.reason}</p>
-          <p><strong>Strike Sequential:</strong> ${note.sequential}</p>
-          <p><strong>Approved by:</strong> ${note.approvedBy}</p>
-        </div>
-        <div class="note-actions">
-          <button class="edit-button">Edit</button>
-          <button class="delete-button">Delete</button>
-        </div>
-      `;
-      const deleteButton = li.querySelector(".delete-button");
-      deleteButton.addEventListener("click", () => showDeleteConfirmation(note.id));
-      return li;
-    }
-
-    function showPopup(message) {
-      overlay.style.display = "block";
-      popup.style.display = "block";
-      popupMessage.textContent = message;
-    }
-
-    function hidePopup() {
-      overlay.style.display = "none";
-      popup.style.display = "none";
-    }
-
-    function updateNoteList() {
-      noteList.innerHTML = "";
-      for (const note of notes) {
-        const li = createNoteElement(note);
-        noteList.appendChild(li);
-      }
-    }
-
-    function addNote() {
-      const text = noteInput.value.trim();
-      if (text !== "") {
-        const note = {
-          id: Date.now(),
-          text: text,
-          user: "John Doe",
-          reason: "Violation of company policy",
-          sequential: "2",
-          approvedBy: "Manager"
+    // Strike Log data
+    let strikeLogData = [];
+    
+    // Create Strike Button
+    const createButton = document.getElementById('create-button');
+    
+    // Strike Log Container
+    const strikeLogContainer = document.getElementById('strike-log-container');
+    
+    // Create Strike
+    createButton.addEventListener('click', function() {
+      const user = document.getElementById('user-input').value;
+      const reason = document.getElementById('reason-input').value;
+      const sequential = document.getElementById('sequential-input').value;
+      const approvedBy = document.getElementById('approved-input').value;
+      
+      // Validate input
+      if (user && reason && sequential && approvedBy) {
+        const strike = {
+          user,
+          reason,
+          sequential,
+          approvedBy
         };
-        notes.push(note);
-        updateNoteList();
-        noteInput.value = "";
-        saveNotesToStorage();
+        
+        strikeLogData.push(strike);
+        
+        renderStrikeLog();
+        
+        // Clear input fields
+        document.getElementById('user-input').value = '';
+        document.getElementById('reason-input').value = '';
+        document.getElementById('sequential-input').value = '';
+        document.getElementById('approved-input').value = '';
       }
-    }
-
-    function deleteNoteById(id) {
-      notes = notes.filter(note => note.id !== id);
-      updateNoteList();
-      saveNotesToStorage();
-    }
-
-    function clearNotes() {
-      notes = [];
-      updateNoteList();
-      saveNotesToStorage();
-    }
-
-    function showDeleteConfirmation(id) {
-      showPopup("Are you sure you want to delete this note?");
-      popupYesButton.addEventListener("click", () => {
-        deleteNoteById(id);
-        hidePopup();
-      });
-      popupNoButton.addEventListener("click", hidePopup);
-    }
-
-    function showClearConfirmation() {
-      showPopup("Are you sure you want to delete all the notes?");
-      popupYesButton.addEventListener("click", () => {
-        clearNotes();
-        hidePopup();
-      });
-      popupNoButton.addEventListener("click", hidePopup);
-    }
-
-    function saveNotesToStorage() {
-      localStorage.setItem("strikeNotes", JSON.stringify(notes));
-    }
-
-    function loadNotesFromStorage() {
-      const savedNotes = localStorage.getItem("strikeNotes");
-      if (savedNotes) {
-        notes = JSON.parse(savedNotes);
-        updateNoteList();
-      }
-    }
-
-    noteForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      addNote();
     });
-
-    clearNotesButton.addEventListener("click", showClearConfirmation);
-
-    loadNotesFromStorage();
+    
+    // Delete Strike
+    function deleteStrike(index) {
+      strikeLogData.splice(index, 1);
+      renderStrikeLog();
+    }
+    
+    // Render Strike Log
+    function renderStrikeLog() {
+      strikeLogContainer.innerHTML = '';
+      
+      strikeLogData.forEach(function(strike, index) {
+        const strikeItem = document.createElement('div');
+        strikeItem.classList.add('strike-log');
+        
+        strikeItem.innerHTML = `
+          <div class="strike-log-item">
+            <label>User:</label>
+            <span>${strike.user}</span>
+          </div>
+          <div class="strike-log-item">
+            <label>Reason:</label>
+            <span>${strike.reason}</span>
+          </div>
+          <div class="strike-log-item">
+            <label>Strike Sequential:</label>
+            <span>${strike.sequential}</span>
+          </div>
+          <div class="strike-log-item">
+            <label>Approved by:</label>
+            <span>${strike.approvedBy}</span>
+          </div>
+          <button class="delete-button" onclick="deleteStrike(${index})">Delete</button>
+        `;
+        
+        strikeLogContainer.appendChild(strikeItem);
+      });
+    }
   </script>
 </body>
-
 </html>
