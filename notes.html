@@ -3,34 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Note Keeper</title>
+  <title>Strike Logs</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
     }
 
     .container {
       max-width: 600px;
       margin: 0 auto;
       padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .note-list {
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    form {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 3px;
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    ul {
       list-style-type: none;
       padding: 0;
+      margin: 0;
     }
 
-    .note-item {
+    li {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 3px;
+    }
+
+    .note-details {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #ccc;
-      padding: 10px 0;
+      margin-bottom: 10px;
+    }
+
+    .note-details span {
+      font-weight: bold;
+    }
+
+    .note-actions {
+      display: flex;
     }
 
     .note-actions button {
       margin-left: 10px;
       padding: 5px 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
     .overlay {
@@ -50,6 +104,8 @@
       margin: 100px auto;
       padding: 20px;
       text-align: center;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .popup-message {
@@ -64,25 +120,34 @@
     .popup-buttons button {
       margin: 0 10px;
       padding: 5px 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Note Keeper</h1>
+    <h1>Strike Logs</h1>
+
     <form id="note-form">
-      <input type="text" id="note-input" placeholder="Enter a note">
-      <button type="submit">Add Note</button>
+      <input type="text" id="note-input" placeholder="Enter a strike log">
+      <button type="submit">Add</button>
     </form>
-    <ul id="note-list" class="note-list"></ul>
-    <button id="clear-notes">Clear All Notes</button>
-    <div id="overlay" class="overlay">
-      <div id="popup" class="popup">
-        <p id="popup-message"></p>
-        <div class="popup-buttons">
-          <button id="popup-yes">Yes</button>
-          <button id="popup-no">No</button>
-        </div>
+
+    <ul id="note-list"></ul>
+
+    <button id="clear-notes-button">Clear All Strikes</button>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+      <p class="popup-message" id="popup-message"></p>
+      <div class="popup-buttons">
+        <button id="popup-yes-button">Yes</button>
+        <button id="popup-no-button">No</button>
       </div>
     </div>
   </div>
@@ -91,49 +156,90 @@
     const noteForm = document.getElementById("note-form");
     const noteInput = document.getElementById("note-input");
     const noteList = document.getElementById("note-list");
-    const clearNotesButton = document.getElementById("clear-notes");
+    const clearNotesButton = document.getElementById("clear-notes-button");
     const overlay = document.getElementById("overlay");
     const popup = document.getElementById("popup");
     const popupMessage = document.getElementById("popup-message");
-    const popupYesButton = document.getElementById("popup-yes");
-    const popupNoButton = document.getElementById("popup-no");
+    const popupYesButton = document.getElementById("popup-yes-button");
+    const popupNoButton = document.getElementById("popup-no-button");
+
     let notes = [];
 
     function createNoteElement(note) {
       const noteElement = document.createElement("li");
-      noteElement.className = "note-item";
-      noteElement.innerHTML = `
-        <span>${note}</span>
-        <div class="note-actions">
-          <button class="edit-button">Edit</button>
-          <button class="delete-button">Delete</button>
-        </div>
-      `;
 
-      const deleteButton = noteElement.querySelector(".delete-button");
-      deleteButton.addEventListener("click", () => showDeleteConfirmation(note));
+      const noteDetails = document.createElement("div");
+      noteDetails.classList.add("note-details");
+
+      const noteContent = document.createElement("span");
+      noteContent.textContent = note;
+
+      const noteActions = document.createElement("div");
+      noteActions.classList.add("note-actions");
+
+      const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => showEditForm(note, noteElement));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => showDeleteConfirmation(note, noteElement));
+
+      noteDetails.appendChild(noteContent);
+      noteActions.appendChild(editButton);
+      noteActions.appendChild(deleteButton);
+
+      noteElement.appendChild(noteDetails);
+      noteElement.appendChild(noteActions);
 
       return noteElement;
     }
 
-    function showDeleteConfirmation(note) {
-      popupMessage.textContent = "Are you sure you want to delete this note?";
+    function showEditForm(note, noteElement) {
+      const editForm = document.createElement("form");
+      const editInput = document.createElement("input");
+      const saveButton = document.createElement("button");
+
+      editInput.type = "text";
+      editInput.value = note;
+      saveButton.textContent = "Save";
+
+      editForm.appendChild(editInput);
+      editForm.appendChild(saveButton);
+      noteElement.innerHTML = "";
+      noteElement.appendChild(editForm);
+
+      editForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const updatedNote = editInput.value.trim();
+        if (updatedNote !== "") {
+          const index = notes.indexOf(note);
+          if (index > -1) {
+            notes[index] = updatedNote;
+            updateNoteList();
+          }
+        }
+      });
+    }
+
+    function showDeleteConfirmation(note, noteElement) {
+      popupMessage.textContent = "Are you sure you want to delete this strike?";
       popupYesButton.removeEventListener("click", deleteNote);
-      popupYesButton.addEventListener("click", () => deleteNote(note));
+      popupYesButton.addEventListener("click", () => deleteNote(note, noteElement));
       showPopup();
     }
 
-    function deleteNote(note) {
+    function deleteNote(note, noteElement) {
       const index = notes.indexOf(note);
       if (index > -1) {
         notes.splice(index, 1);
-        updateNoteList();
+        noteList.removeChild(noteElement);
       }
       hidePopup();
     }
 
     function showClearConfirmation() {
-      popupMessage.textContent = "Are you sure you want to delete all the notes?";
+      popupMessage.textContent = "Are you sure you want to delete all the strikes?";
       popupYesButton.removeEventListener("click", clearNotes);
       popupYesButton.addEventListener("click", clearNotes);
       showPopup();
@@ -141,7 +247,7 @@
 
     function clearNotes() {
       notes = [];
-      updateNoteList();
+      noteList.innerHTML = "";
       hidePopup();
     }
 
@@ -170,13 +276,19 @@
         notes.push(note);
         updateNoteList();
         noteInput.value = "";
+        noteInput.focus();
       }
     });
 
     clearNotesButton.addEventListener("click", showClearConfirmation);
 
+    window.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        hidePopup();
+      }
+    });
+
     updateNoteList();
   </script>
 </body>
 </html>
-
