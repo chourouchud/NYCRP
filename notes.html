@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Strike Logs</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     h1 {
@@ -19,378 +25,118 @@
       margin-bottom: 20px;
     }
 
-    .strike-form input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
-    .strike-log-container {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .strike-log-item {
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #f5f5f5;
-    }
-
-    .strike-log-item span {
+    .strike-form label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
-    .edit-actions {
-      margin-top: 10px;
-    }
-
-    .edit-button,
-    .save-button,
-    .cancel-button,
-    .delete-button {
-      display: inline-block;
-      padding: 5px 10px;
-      margin-right: 5px;
-      cursor: pointer;
-    }
-
-    .edit-button {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-    }
-
-    .save-button {
-      background-color: #28a745;
-      color: #fff;
-      border: none;
-    }
-
-    .cancel-button,
-    .delete-button {
-      background-color: #dc3545;
-      color: #fff;
-      border: none;
-    }
-
-    .popup {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      left: 0;
+    .strike-form input[type="text"] {
       width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-    }
-
-    .popup-content {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      text-align: center;
-    }
-
-    .popup-message {
+      padding: 8px;
       margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
-    .popup-actions {
-      display: flex;
-      justify-content: center;
+    .strike-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
     }
 
-    .popup-button {
-      display: inline-block;
-      padding: 5px 10px;
-      margin: 0 5px;
-      cursor: pointer;
+    .strike-item {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
     }
 
-    .popup-button.confirm {
-      background-color: #28a745;
-      color: #fff;
-      border: none;
+    .strike-item .strike-actions {
+      margin-top: 10px;
+      text-align: right;
     }
 
-    .popup-button.cancel {
-      background-color: #dc3545;
-      color: #fff;
-      border: none;
+    .strike-item .strike-actions button {
+      margin-left: 5px;
     }
   </style>
 </head>
-
 <body>
-  <h1>Strike Logs</h1>
+  <div class="container">
+    <h1>Strike Logs</h1>
 
-  <div class="strike-form">
-    <input type="text" id="user-input" placeholder="User">
-    <input type="text" id="reason-input" placeholder="Reason">
-    <input type="text" id="sequential-input" placeholder="Strike Sequential">
-    <input type="text" id="approvedby-input" placeholder="Approved by">
-    <button id="create-strike-button">Create Strike</button>
-  </div>
+    <form id="strikeForm" class="strike-form">
+      <label for="user">User:</label>
+      <input type="text" id="user" placeholder="Enter user" required>
+      <label for="reason">Reason:</label>
+      <input type="text" id="reason" placeholder="Enter reason" required>
+      <label for="sequential">Strike Sequential:</label>
+      <input type="text" id="sequential" placeholder="Enter sequential" required>
+      <label for="approved">Approved by:</label>
+      <input type="text" id="approved" placeholder="Enter approved by" required>
+      <button type="submit">Create Strike</button>
+    </form>
 
-  <div class="strike-log-container" id="strike-log-container"></div>
-
-  <div class="popup" id="delete-confirmation-popup">
-    <div class="popup-content">
-      <div class="popup-message" id="delete-confirmation-message">Are you sure you want to delete this strike?</div>
-      <div class="popup-actions">
-        <button class="popup-button confirm" id="delete-confirmation-yes">Yes</button>
-        <button class="popup-button cancel" id="delete-confirmation-no">No</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="popup" id="clear-confirmation-popup">
-    <div class="popup-content">
-      <div class="popup-message" id="clear-confirmation-message">Are you sure you want to delete all the strikes?</div>
-      <div class="popup-actions">
-        <button class="popup-button confirm" id="clear-confirmation-yes">Yes</button>
-        <button class="popup-button cancel" id="clear-confirmation-no">No</button>
-      </div>
-    </div>
+    <ul id="strikeList" class="strike-list"></ul>
   </div>
 
   <script>
-    const strikeLogContainer = document.getElementById('strike-log-container');
-    const createStrikeButton = document.getElementById('create-strike-button');
-    const deleteConfirmationPopup = document.getElementById('delete-confirmation-popup');
-    const deleteConfirmationYesButton = document.getElementById('delete-confirmation-yes');
-    const deleteConfirmationNoButton = document.getElementById('delete-confirmation-no');
-    const clearConfirmationPopup = document.getElementById('clear-confirmation-popup');
-    const clearConfirmationYesButton = document.getElementById('clear-confirmation-yes');
-    const clearConfirmationNoButton = document.getElementById('clear-confirmation-no');
+    const strikeForm = document.getElementById("strikeForm");
+    const strikeList = document.getElementById("strikeList");
 
-    let strikeLogData = [];
+    strikeForm.addEventListener("submit", function (event) {
+      event.preventDefault();
 
-    // Render Strike Log
-    const renderStrikeLog = () => {
-      strikeLogContainer.innerHTML = '';
+      const user = document.getElementById("user").value;
+      const reason = document.getElementById("reason").value;
+      const sequential = document.getElementById("sequential").value;
+      const approved = document.getElementById("approved").value;
 
-      strikeLogData.forEach((strike, index) => {
-        const strikeLogItem = document.createElement('div');
-        strikeLogItem.classList.add('strike-log-item');
-
-        const strikeLogItemText = document.createElement('span');
-        strikeLogItemText.innerHTML = `User: ${strike.user}<br>Reason: ${strike.reason}<br>Strike Sequential: ${strike.sequential}<br>Approved by: ${strike.approvedBy}`;
-        strikeLogItem.appendChild(strikeLogItemText);
-
-        const editButton = document.createElement('button');
-        editButton.innerText = 'Edit';
-        editButton.classList.add('edit-button');
-        editButton.addEventListener('click', () => editStrike(index));
-        strikeLogItem.appendChild(editButton);
-
-        const deleteButton = document.createElement('button');
-        deleteButton.innerText = 'Delete';
-        deleteButton.classList.add('delete-button');
-        deleteButton.addEventListener('click', () => showDeleteConfirmation(index));
-        strikeLogItem.appendChild(deleteButton);
-
-        strikeLogContainer.appendChild(strikeLogItem);
-      });
-    };
-
-    // Create Strike
-    const createStrike = () => {
-      const userInput = document.getElementById('user-input').value.trim();
-      const reasonInput = document.getElementById('reason-input').value.trim();
-      const sequentialInput = document.getElementById('sequential-input').value.trim();
-      const approvedByInput = document.getElementById('approvedby-input').value.trim();
-
-      if (userInput && reasonInput && sequentialInput && approvedByInput) {
-        const strike = {
-          user: userInput,
-          reason: reasonInput,
-          sequential: sequentialInput,
-          approvedBy: approvedByInput
-        };
-
-        strikeLogData.push(strike);
-        renderStrikeLog();
-
-        document.getElementById('user-input').value = '';
-        document.getElementById('reason-input').value = '';
-        document.getElementById('sequential-input').value = '';
-        document.getElementById('approvedby-input').value = '';
-      }
-    };
-
-    // Show Delete Confirmation
-    const showDeleteConfirmation = (index) => {
-      const deleteConfirmationMessage = document.getElementById('delete-confirmation-message');
-      deleteConfirmationMessage.innerText = `Are you sure you want to delete this strike?`;
-
-      deleteConfirmationYesButton.addEventListener('click', () => {
-        deleteStrike(index);
-        hideDeleteConfirmation();
-      });
-
-      deleteConfirmationNoButton.addEventListener('click', () => {
-        hideDeleteConfirmation();
-      });
-
-      deleteConfirmationPopup.style.display = 'flex';
-    };
-
-    // Hide Delete Confirmation
-    const hideDeleteConfirmation = () => {
-      deleteConfirmationPopup.style.display = 'none';
-    };
-
-    // Delete Strike
-    const deleteStrike = (index) => {
-      strikeLogData.splice(index, 1);
-      renderStrikeLog();
-    };
-
-    // Show Clear Confirmation
-    const showClearConfirmation = () => {
-      const clearConfirmationMessage = document.getElementById('clear-confirmation-message');
-      clearConfirmationMessage.innerText = `Are you sure you want to delete all the strikes?`;
-
-      clearConfirmationYesButton.addEventListener('click', () => {
-        clearStrikes();
-        hideClearConfirmation();
-      });
-
-      clearConfirmationNoButton.addEventListener('click', () => {
-        hideClearConfirmation();
-      });
-
-      clearConfirmationPopup.style.display = 'flex';
-    };
-
-    // Hide Clear Confirmation
-    const hideClearConfirmation = () => {
-      clearConfirmationPopup.style.display = 'none';
-    };
-
-    // Clear Strikes
-    const clearStrikes = () => {
-      strikeLogData = [];
-      renderStrikeLog();
-    };
-
-    // Edit Strike
-    const editStrike = (index) => {
-      const strike = strikeLogData[index];
-
-      const strikeLogItem = strikeLogContainer.children[index];
-      const strikeLogItemText = strikeLogItem.querySelector('span');
-
-      const editButton = strikeLogItem.querySelector('.edit-button');
-      const deleteButton = strikeLogItem.querySelector('.delete-button');
-
-      const userText = strike.user;
-      const reasonText = strike.reason;
-      const sequentialText = strike.sequential;
-      const approvedByText = strike.approvedBy;
-
-      strikeLogItemText.innerHTML = `
-        User: <input type="text" class="edit-user-input" value="${userText}">
-        Reason: <input type="text" class="edit-reason-input" value="${reasonText}">
-        Strike Sequential: <input type="text" class="edit-sequential-input" value="${sequentialText}">
-        Approved by: <input type="text" class="edit-approvedby-input" value="${approvedByText}">
+      const strikeItem = document.createElement("li");
+      strikeItem.className = "strike-item";
+      strikeItem.innerHTML = `
+        <strong>User:</strong> ${user}<br>
+        <strong>Reason:</strong> ${reason}<br>
+        <strong>Strike Sequential:</strong> ${sequential}<br>
+        <strong>Approved by:</strong> ${approved}
+        <div class="strike-actions">
+          <button onclick="editStrike(this)">Edit</button>
+          <button onclick="deleteStrike(this)">Delete</button>
+        </div>
       `;
 
-      const saveButton = document.createElement('button');
-      saveButton.innerText = 'Save';
-      saveButton.classList.add('save-button');
-      saveButton.addEventListener('click', () => saveStrike(index));
-      strikeLogItem.appendChild(saveButton);
-
-      const cancelButton = document.createElement('button');
-      cancelButton.innerText = 'Cancel';
-      cancelButton.classList.add('cancel-button');
-      cancelButton.addEventListener('click', () => cancelEdit(index));
-      strikeLogItem.appendChild(cancelButton);
-
-      editButton.style.display = 'none';
-      deleteButton.style.display = 'none';
-    };
-
-    // Save Strike
-    const saveStrike = (index) => {
-      const strikeLogItem = strikeLogContainer.children[index];
-      const strikeLogItemText = strikeLogItem.querySelector('span');
-
-      const userInput = strikeLogItem.querySelector('.edit-user-input').value.trim();
-      const reasonInput = strikeLogItem.querySelector('.edit-reason-input').value.trim();
-      const sequentialInput = strikeLogItem.querySelector('.edit-sequential-input').value.trim();
-      const approvedByInput = strikeLogItem.querySelector('.edit-approvedby-input').value.trim();
-
-      if (userInput && reasonInput && sequentialInput && approvedByInput) {
-        strikeLogData[index] = {
-          user: userInput,
-          reason: reasonInput,
-          sequential: sequentialInput,
-          approvedBy: approvedByInput
-        };
-
-        strikeLogItemText.innerHTML = `
-          User: ${userInput}<br>
-          Reason: ${reasonInput}<br>
-          Strike Sequential: ${sequentialInput}<br>
-          Approved by: ${approvedByInput}
-        `;
-
-        strikeLogItem.removeChild(strikeLogItem.querySelector('.save-button'));
-        strikeLogItem.removeChild(strikeLogItem.querySelector('.cancel-button'));
-
-        const editButton = strikeLogItem.querySelector('.edit-button');
-        const deleteButton = strikeLogItem.querySelector('.delete-button');
-
-        editButton.style.display = 'inline-block';
-        deleteButton.style.display = 'inline-block';
-      }
-    };
-
-    // Cancel Edit
-    const cancelEdit = (index) => {
-      const strike = strikeLogData[index];
-
-      const strikeLogItem = strikeLogContainer.children[index];
-      const strikeLogItemText = strikeLogItem.querySelector('span');
-
-      strikeLogItemText.innerHTML = `
-        User: ${strike.user}<br>
-        Reason: ${strike.reason}<br>
-        Strike Sequential: ${strike.sequential}<br>
-        Approved by: ${strike.approvedBy}
-      `;
-
-      strikeLogItem.removeChild(strikeLogItem.querySelector('.save-button'));
-      strikeLogItem.removeChild(strikeLogItem.querySelector('.cancel-button'));
-
-      const editButton = strikeLogItem.querySelector('.edit-button');
-      const deleteButton = strikeLogItem.querySelector('.delete-button');
-
-      editButton.style.display = 'inline-block';
-      deleteButton.style.display = 'inline-block';
-    };
-
-    // Event Listeners
-    createStrikeButton.addEventListener('click', createStrike);
-
-    window.addEventListener('click', (event) => {
-      if (event.target === deleteConfirmationPopup) {
-        hideDeleteConfirmation();
-      }
-
-      if (event.target === clearConfirmationPopup) {
-        hideClearConfirmation();
-      }
+      strikeList.appendChild(strikeItem);
+      strikeForm.reset();
     });
 
-    renderStrikeLog();
+    function deleteStrike(button) {
+      const confirmDelete = confirm("Are you sure you want to delete this strike?");
+      if (confirmDelete) {
+        const strikeItem = button.parentNode.parentNode;
+        strikeList.removeChild(strikeItem);
+      }
+    }
+
+    function editStrike(button) {
+      const strikeItem = button.parentNode.parentNode;
+      const user = strikeItem.querySelector("strong:nth-child(1)");
+      const reason = strikeItem.querySelector("strong:nth-child(2)");
+      const sequential = strikeItem.querySelector("strong:nth-child(3)");
+      const approved = strikeItem.querySelector("strong:nth-child(4)");
+
+      const userInput = prompt("Enter user:", user.textContent.slice(6).trim());
+      const reasonInput = prompt("Enter reason:", reason.textContent.slice(8).trim());
+      const sequentialInput = prompt("Enter strike sequential:", sequential.textContent.slice(17).trim());
+      const approvedInput = prompt("Enter approved by:", approved.textContent.slice(13).trim());
+
+      if (userInput && reasonInput && sequentialInput && approvedInput) {
+        user.textContent = `User: ${userInput}`;
+        reason.textContent = `Reason: ${reasonInput}`;
+        sequential.textContent = `Strike Sequential: ${sequentialInput}`;
+        approved.textContent = `Approved by: ${approvedInput}`;
+      }
+    }
   </script>
 </body>
-
 </html>
+
