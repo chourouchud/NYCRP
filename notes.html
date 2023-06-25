@@ -46,9 +46,22 @@
       background-color: #f9f9f9;
     }
 
-    .strike-item .delete-button {
+    .strike-item .strike-details {
+      margin-bottom: 10px;
+    }
+
+    .strike-item .edit-button {
       padding: 5px 10px;
       background-color: #ccc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .strike-item .delete-button {
+      padding: 5px 10px;
+      background-color: #ff4d4d;
       color: white;
       border: none;
       border-radius: 5px;
@@ -81,43 +94,85 @@
     // JavaScript code here
     const strikeForm = document.getElementById('strikeForm');
     const strikeList = document.querySelector('.strike-list');
+    let isEditMode = false;
+    let editedItem = null;
 
     // Function to create a new strike
     const createStrike = (user, reason, sequential, approved) => {
       const strikeItem = document.createElement('div');
       strikeItem.className = 'strike-item';
 
-      const strikeText = document.createElement('p');
-      strikeText.innerHTML = `User: ${user}<br>Reason: ${reason}<br>Strike Sequential: ${sequential}<br>Approved by: ${approved}`;
-      strikeItem.appendChild(strikeText);
+      const strikeDetails = document.createElement('div');
+      strikeDetails.className = 'strike-details';
+      strikeDetails.innerHTML = `User: ${user}<br>Reason: ${reason}<br>Strike Sequential: ${sequential}<br>Approved by: ${approved}`;
+
+      const editButton = document.createElement('button');
+      editButton.className = 'edit-button';
+      editButton.textContent = 'Edit';
 
       const deleteButton = document.createElement('button');
       deleteButton.className = 'delete-button';
-      deleteButton.innerText = 'Delete';
-      deleteButton.addEventListener('click', () => {
-        strikeList.removeChild(strikeItem);
-      });
+      deleteButton.textContent = 'Delete';
+
+      strikeItem.appendChild(strikeDetails);
+      strikeItem.appendChild(editButton);
       strikeItem.appendChild(deleteButton);
 
       strikeList.appendChild(strikeItem);
+
+      // Add event listener to edit button
+      editButton.addEventListener('click', () => {
+        isEditMode = true;
+        editedItem = strikeItem;
+
+        const strikeDetailsText = strikeDetails.innerHTML.split('<br>');
+        const [userText, reasonText, sequentialText, approvedText] = strikeDetailsText.map((text) => {
+          const [label, value] = text.split(': ');
+          return value;
+        });
+
+        document.getElementById('user').value = userText;
+        document.getElementById('reason').value = reasonText;
+        document.getElementById('sequential').value = sequentialText;
+        document.getElementById('approved').value = approvedText;
+      });
+
+      // Add event listener to delete button
+      deleteButton.addEventListener('click', () => {
+        strikeItem.remove();
+      });
     };
 
-    // Event listener for the create strike form submission
+    // Event listener for form submission
     strikeForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const user = document.getElementById('user').value;
-      const reason = document.getElementById('reason').value;
-      const sequential = document.getElementById('sequential').value;
-      const approved = document.getElementById('approved').value;
+      if (isEditMode) {
+        // Update existing strike item in edit mode
+        const user = document.getElementById('user').value;
+        const reason = document.getElementById('reason').value;
+        const sequential = document.getElementById('sequential').value;
+        const approved = document.getElementById('approved').value;
 
-      createStrike(user, reason, sequential, approved);
+        editedItem.querySelector('.strike-details').innerHTML = `User: ${user}<br>Reason: ${reason}<br>Strike Sequential: ${sequential}<br>Approved by: ${approved}`;
 
-      // Clear the form inputs
-      strikeForm.reset();
+        // Reset form and edit mode
+        strikeForm.reset();
+        isEditMode = false;
+        editedItem = null;
+      } else {
+        // Create new strike item
+        const user = document.getElementById('user').value;
+        const reason = document.getElementById('reason').value;
+        const sequential = document.getElementById('sequential').value;
+        const approved = document.getElementById('approved').value;
+
+        createStrike(user, reason, sequential, approved);
+
+        // Clear the form inputs
+        strikeForm.reset();
+      }
     });
   </script>
 </body>
 </html>
-
-
