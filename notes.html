@@ -1,139 +1,109 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Note Taking App</title>
+  <title>Note Keeper</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .note-input-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .note-input-container input[type="text"] {
-      flex-grow: 1;
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .note-input-container button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      cursor: pointer;
+    .note-list {
+      list-style-type: none;
+      padding: 0;
     }
 
     .note-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: #f0f0f0;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
-    .note-text {
-      flex-grow: 1;
-      font-size: 16px;
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
     }
 
     .note-actions button {
-      padding: 5px 10px;
-      font-size: 14px;
-      background-color: #e60000;
-      color: #fff;
-      border: none;
-      cursor: pointer;
       margin-left: 10px;
+      padding: 5px 10px;
     }
 
-    /* Popup Styles */
     .overlay {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
+      z-index: 9999;
     }
 
     .popup {
       background-color: #fff;
+      max-width: 400px;
+      margin: 100px auto;
       padding: 20px;
-      border-radius: 5px;
       text-align: center;
     }
 
-    .popup h2 {
-      margin-top: 0;
+    .popup-message {
+      margin-bottom: 20px;
     }
 
-    .popup button {
-      padding: 10px 20px;
-      font-size: 14px;
-      background-color: #e60000;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      margin: 10px;
+    .popup-buttons {
+      display: flex;
+      justify-content: center;
+    }
+
+    .popup-buttons button {
+      margin: 0 10px;
+      padding: 5px 10px;
     }
   </style>
 </head>
-
 <body>
-  <h1>Note Taking App</h1>
-  <div class="note-input-container">
-    <input type="text" id="note-input" placeholder="Enter your note">
-    <button id="add-note">Add Note</button>
-  </div>
-  <div id="note-list">
-    <!-- Notes will be dynamically added here -->
-  </div>
-
-  <!-- Popup -->
-  <div class="overlay" id="overlay">
-    <div class="popup">
-      <h2 id="popup-message"></h2>
-      <button id="popup-yes">Yes</button>
-      <button id="popup-no">No</button>
+  <div class="container">
+    <h1>Note Keeper</h1>
+    <form id="note-form">
+      <input type="text" id="note-input" placeholder="Enter a note">
+      <button type="submit">Add Note</button>
+    </form>
+    <ul id="note-list" class="note-list"></ul>
+    <button id="clear-notes">Clear All Notes</button>
+    <div id="overlay" class="overlay">
+      <div id="popup" class="popup">
+        <p id="popup-message"></p>
+        <div class="popup-buttons">
+          <button id="popup-yes">Yes</button>
+          <button id="popup-no">No</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    const noteForm = document.getElementById("note-form");
     const noteInput = document.getElementById("note-input");
-    const addNoteButton = document.getElementById("add-note");
     const noteList = document.getElementById("note-list");
+    const clearNotesButton = document.getElementById("clear-notes");
     const overlay = document.getElementById("overlay");
+    const popup = document.getElementById("popup");
     const popupMessage = document.getElementById("popup-message");
     const popupYesButton = document.getElementById("popup-yes");
     const popupNoButton = document.getElementById("popup-no");
     let notes = [];
 
     function createNoteElement(note) {
-      const noteElement = document.createElement("div");
+      const noteElement = document.createElement("li");
       noteElement.className = "note-item";
       noteElement.innerHTML = `
-        <div class="note-text">${note}</div>
+        <span>${note}</span>
         <div class="note-actions">
           <button class="edit-button">Edit</button>
           <button class="delete-button">Delete</button>
@@ -141,108 +111,72 @@
       `;
 
       const deleteButton = noteElement.querySelector(".delete-button");
-      deleteButton.addEventListener("click", function () {
-        showPopup("Are you sure you want to delete this note?", function () {
-          deleteNoteFromServer(note);
-        });
-      });
-
-      const editButton = noteElement.querySelector(".edit-button");
-      editButton.addEventListener("click", function () {
-        const noteText = noteElement.querySelector(".note-text");
-        const currentNote = noteText.textContent;
-        const updatedNote = prompt("Edit Note", currentNote);
-
-        if (updatedNote !== null) {
-          const index = notes.indexOf(note);
-          if (index !== -1) {
-            notes[index] = updatedNote;
-            noteText.textContent = updatedNote;
-          }
-        }
-      });
+      deleteButton.addEventListener("click", () => showDeleteConfirmation(note));
 
       return noteElement;
     }
 
-    function showPopup(message, onConfirm) {
-      popupMessage.textContent = message;
-      overlay.style.display = "flex";
-
-      popupYesButton.addEventListener("click", function () {
-        onConfirm();
-        overlay.style.display = "none";
-      });
-
-      popupNoButton.addEventListener("click", function () {
-        overlay.style.display = "none";
-      });
+    function showDeleteConfirmation(note) {
+      popupMessage.textContent = "Are you sure you want to delete this note?";
+      popupYesButton.removeEventListener("click", deleteNote);
+      popupYesButton.addEventListener("click", () => deleteNote(note));
+      showPopup();
     }
 
-    function deleteNoteFromServer(note) {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "delete-note.php", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          if (response.success) {
-            deleteNoteFromList(note);
-          } else {
-            alert(response.message);
-          }
-        }
-      };
-      xhr.send(`note=${encodeURIComponent(note)}`);
-    }
-
-    function deleteNoteFromList(note) {
+    function deleteNote(note) {
       const index = notes.indexOf(note);
-      if (index !== -1) {
+      if (index > -1) {
         notes.splice(index, 1);
-        refreshNoteList();
+        updateNoteList();
       }
+      hidePopup();
     }
 
-    function clearAllNotes() {
-      showPopup("Are you sure you want to delete all the notes?", function () {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "clear-notes.php", true);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.success) {
-              notes = [];
-              refreshNoteList();
-            } else {
-              alert(response.message);
-            }
-          }
-        };
-        xhr.send();
-      });
+    function showClearConfirmation() {
+      popupMessage.textContent = "Are you sure you want to delete all the notes?";
+      popupYesButton.removeEventListener("click", clearNotes);
+      popupYesButton.addEventListener("click", clearNotes);
+      showPopup();
     }
 
-    function refreshNoteList() {
+    function clearNotes() {
+      notes = [];
+      updateNoteList();
+      hidePopup();
+    }
+
+    function showPopup() {
+      overlay.style.display = "block";
+      popup.style.display = "block";
+    }
+
+    function hidePopup() {
+      overlay.style.display = "none";
+      popup.style.display = "none";
+    }
+
+    function updateNoteList() {
       noteList.innerHTML = "";
-      notes.forEach(function (note) {
+      notes.forEach((note) => {
         const noteElement = createNoteElement(note);
         noteList.appendChild(noteElement);
       });
     }
 
-    addNoteButton.addEventListener("click", function () {
-      const note = noteInput.value;
+    noteForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const note = noteInput.value.trim();
       if (note !== "") {
         notes.push(note);
+        updateNoteList();
         noteInput.value = "";
-        refreshNoteList();
       }
     });
 
-    // Initial rendering
-    refreshNoteList();
+    clearNotesButton.addEventListener("click", showClearConfirmation);
+
+    updateNoteList();
   </script>
 </body>
-
 </html>
+
