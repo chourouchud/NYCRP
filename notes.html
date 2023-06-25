@@ -3,61 +3,56 @@
 <head>
   <title>Strike Logs</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-    }
-
+    /* CSS styles here */
     .container {
       max-width: 600px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .strike-form {
-      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
 
     .strike-form label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
 
     .strike-form input[type="text"] {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
+    }
+
+    .strike-form button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     .strike-list {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
+      margin-top: 20px;
     }
 
     .strike-item {
-      background-color: #f9f9f9;
-      padding: 10px;
       margin-bottom: 10px;
-      border-radius: 4px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
     }
 
-    .strike-item .strike-actions {
-      margin-top: 10px;
-      text-align: right;
-    }
-
-    .strike-item .strike-actions button {
-      margin-left: 5px;
+    .strike-item .delete-button {
+      padding: 5px 10px;
+      background-color: #ccc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -73,70 +68,56 @@
       <label for="sequential">Strike Sequential:</label>
       <input type="text" id="sequential" placeholder="Enter sequential" required>
       <label for="approved">Approved by:</label>
-      <input type="text" id="approved" placeholder="Enter approved by" required>
+      <input type="text" id="approved" placeholder="Enter approver" required>
       <button type="submit">Create Strike</button>
     </form>
 
-    <ul id="strikeList" class="strike-list"></ul>
+    <div class="strike-list">
+      <!-- Strike items will be dynamically added here -->
+    </div>
   </div>
 
   <script>
-    const strikeForm = document.getElementById("strikeForm");
-    const strikeList = document.getElementById("strikeList");
+    // JavaScript code here
+    const strikeForm = document.getElementById('strikeForm');
+    const strikeList = document.querySelector('.strike-list');
 
-    strikeForm.addEventListener("submit", function (event) {
-      event.preventDefault();
+    // Function to create a new strike
+    const createStrike = (user, reason, sequential, approved) => {
+      const strikeItem = document.createElement('div');
+      strikeItem.className = 'strike-item';
 
-      const user = document.getElementById("user").value;
-      const reason = document.getElementById("reason").value;
-      const sequential = document.getElementById("sequential").value;
-      const approved = document.getElementById("approved").value;
+      const strikeText = document.createElement('p');
+      strikeText.innerHTML = `User: ${user}<br>Reason: ${reason}<br>Strike Sequential: ${sequential}<br>Approved by: ${approved}`;
+      strikeItem.appendChild(strikeText);
 
-      const strikeItem = document.createElement("li");
-      strikeItem.className = "strike-item";
-      strikeItem.innerHTML = `
-        <strong>User:</strong> ${user}<br>
-        <strong>Reason:</strong> ${reason}<br>
-        <strong>Strike Sequential:</strong> ${sequential}<br>
-        <strong>Approved by:</strong> ${approved}
-        <div class="strike-actions">
-          <button onclick="editStrike(this)">Edit</button>
-          <button onclick="deleteStrike(this)">Delete</button>
-        </div>
-      `;
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'delete-button';
+      deleteButton.innerText = 'Delete';
+      deleteButton.addEventListener('click', () => {
+        strikeList.removeChild(strikeItem);
+      });
+      strikeItem.appendChild(deleteButton);
 
       strikeList.appendChild(strikeItem);
+    };
+
+    // Event listener for the create strike form submission
+    strikeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const user = document.getElementById('user').value;
+      const reason = document.getElementById('reason').value;
+      const sequential = document.getElementById('sequential').value;
+      const approved = document.getElementById('approved').value;
+
+      createStrike(user, reason, sequential, approved);
+
+      // Clear the form inputs
       strikeForm.reset();
     });
-
-    function deleteStrike(button) {
-      const confirmDelete = confirm("Are you sure you want to delete this strike?");
-      if (confirmDelete) {
-        const strikeItem = button.parentNode.parentNode;
-        strikeList.removeChild(strikeItem);
-      }
-    }
-
-    function editStrike(button) {
-      const strikeItem = button.parentNode.parentNode;
-      const user = strikeItem.querySelector("strong:nth-child(1)");
-      const reason = strikeItem.querySelector("strong:nth-child(2)");
-      const sequential = strikeItem.querySelector("strong:nth-child(3)");
-      const approved = strikeItem.querySelector("strong:nth-child(4)");
-
-      const userInput = prompt("Enter user:", user.textContent.slice(6).trim());
-      const reasonInput = prompt("Enter reason:", reason.textContent.slice(8).trim());
-      const sequentialInput = prompt("Enter strike sequential:", sequential.textContent.slice(17).trim());
-      const approvedInput = prompt("Enter approved by:", approved.textContent.slice(13).trim());
-
-      if (userInput && reasonInput && sequentialInput && approvedInput) {
-        user.textContent = `User: ${userInput}`;
-        reason.textContent = `Reason: ${reasonInput}`;
-        sequential.textContent = `Strike Sequential: ${sequentialInput}`;
-        approved.textContent = `Approved by: ${approvedInput}`;
-      }
-    }
   </script>
 </body>
 </html>
+
 
