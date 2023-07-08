@@ -862,7 +862,7 @@ a {
 }
 @media (min-width: 992px) {
   .cid-tHUOHgg4Ds .navbar.collapsed.opened:not(.navbar-short) .navbar-collapse {
-    max-height: calc(98.5vh - 4rem);
+    max-height: calc(98.5vh - 3.3rem);
   }
 }
 .cid-tHUOHgg4Ds .navbar.collapsed .dropdown-menu .dropdown-submenu {
@@ -1271,7 +1271,7 @@ a {
 }
 @media (min-width: 992px) {
   .cid-tHUOHgg4Ds .navbar.collapsed.opened:not(.navbar-short) .navbar-collapse {
-    max-height: calc(98.5vh - 4rem);
+    max-height: calc(98.5vh - 3.3rem);
   }
 }
 .cid-tHUOHgg4Ds .navbar.collapsed .dropdown-menu .dropdown-submenu {
@@ -1504,7 +1504,7 @@ a {
   overflow: hidden;
 }
 .cid-s48MCQYojq {
-  background-image: url("../../../assets/images/robloxscreennycrp-726x408.png");
+  background-image: url("../../../assets/images/test-726x408.png");
 }
 .cid-s48MCQYojq .mbr-section-title {
   text-align: center;
