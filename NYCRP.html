@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NYC:RP Countdown</title>
+  <title>NYCRP Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,11 +11,17 @@
 
     h1 {
       color: #333333;
+      font-size: 36px;
     }
 
     .countdown {
       margin-top: 50px;
-      font-size: 36px;
+      font-size: 24px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .countdown span {
@@ -28,10 +34,9 @@
     }
   </style>
 </head>
-<body oncontextmenu="return false">
+<body>
+   <p class="label">Time till NYCRP website is up online. <strong>↓</strong></p>
   <h1><span id="countdown"></span></h1>
-  <p class="label">Till NYC:RP website is up</p>
-
   <script>
     // Set the date for the countdown
     const countdownDate = new Date();
