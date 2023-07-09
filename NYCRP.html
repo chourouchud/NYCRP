@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NYCRP Countdown</title>
+  <title>NYC:RP Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -37,28 +37,35 @@
     }
   </style>
 </head>
-<body oncontextmenu="return false">
+<body>
   <div class="countdown-container">
     <div class="countdown">
       <span id="days"></span>
       <span id="hours"></span>
       <span id="minutes"></span>
       <span id="seconds"></span>
-      <p class="label">Time till NYCRP website is up</p>
+      <p class="label">Time till NYC:RP website is up online.</p>
     </div>
   </div>
 
   <script>
     // Set the date for the countdown
     const countdownDate = new Date();
-    countdownDate.setDate(countdownDate.getDate() + 999999);
+    countdownDate.setDate(countdownDate.getDate() + 14);
+
+    // Check if countdown start time is stored in local storage
+    let countdownStartTime = localStorage.getItem("countdownStartTime");
+    if (!countdownStartTime) {
+      countdownStartTime = new Date().getTime();
+      localStorage.setItem("countdownStartTime", countdownStartTime);
+    }
 
     // Update the countdown every second
     setInterval(updateCountdown, 1000);
 
     function updateCountdown() {
       const now = new Date().getTime();
-      const distance = countdownDate.getTime() - now;
+      const distance = countdownDate.getTime() - (now - countdownStartTime);
 
       // Calculate remaining time
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -75,6 +82,7 @@
       // Redirect when countdown reaches zero
       if (distance <= 0) {
         window.location.href = "https://chourouchudu.tk/home"; // Replace with your desired redirection URL
+        localStorage.removeItem("countdownStartTime");
       }
     }
   </script>
