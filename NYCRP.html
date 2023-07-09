@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Countdown</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333333;
+    }
+
+    .countdown {
+      margin-top: 50px;
+      font-size: 36px;
+    }
+
+    .countdown span {
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    .countdown .label {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body oncontextmenu="return false">
+  <h1><span id="countdown"></span></h1>
+  <p class="label">Till NYC:RP website is up</p>
+
+  <script>
+    // Set the date for the countdown
+    const countdownDate = new Date();
+    countdownDate.setDate(countdownDate.getDate() + 14);
+
+    // Update the countdown every second
+    setInterval(updateCountdown, 1000);
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = countdownDate.getTime() - now;
+
+      // Calculate remaining time
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+      // Display the countdown
+      document.getElementById("countdown").textContent = days;
+    }
+  </script>
+</body>
+</html>
