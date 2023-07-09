@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Countdown</title>
+  <title>NYC:RP Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -46,9 +46,17 @@
 
       // Calculate remaining time
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       // Display the countdown
-      document.getElementById("countdown").textContent = days;
+      document.getElementById("countdown").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+
+      // Redirect when countdown reaches zero
+      if (distance <= 0) {
+        window.location.href = "https://chourouchudu.tk/home"; // Replace with your desired redirection URL
+      }
     }
   </script>
 </body>
