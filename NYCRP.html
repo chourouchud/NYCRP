@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NYC:RP Countdown</title>
+  <title>Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,7 +44,7 @@
       <span id="hours"></span>
       <span id="minutes"></span>
       <span id="seconds"></span>
-      <p class="label">Time till NYC:RP website is up online.</p>
+      <p class="label">Till NYC:RP website is up</p>
     </div>
   </div>
 
@@ -53,11 +53,11 @@
     const countdownDate = new Date();
     countdownDate.setDate(countdownDate.getDate() + 14);
 
-    // Check if countdown start time is stored in local storage
-    let countdownStartTime = localStorage.getItem("countdownStartTime");
+    // Check if countdown start time is stored in session storage
+    let countdownStartTime = sessionStorage.getItem("countdownStartTime");
     if (!countdownStartTime) {
       countdownStartTime = new Date().getTime();
-      localStorage.setItem("countdownStartTime", countdownStartTime);
+      sessionStorage.setItem("countdownStartTime", countdownStartTime);
     }
 
     // Update the countdown every second
@@ -81,10 +81,11 @@
 
       // Redirect when countdown reaches zero
       if (distance <= 0) {
-        window.location.href = "https://chourouchudu.tk/home"; // Replace with your desired redirection URL
-        localStorage.removeItem("countdownStartTime");
+        window.location.href = "https://example.com/home"; // Replace with your desired redirection URL
+        sessionStorage.removeItem("countdownStartTime");
       }
     }
   </script>
 </body>
 </html>
+
