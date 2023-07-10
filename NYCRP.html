@@ -53,11 +53,11 @@
     const countdownDate = new Date();
     countdownDate.setDate(countdownDate.getDate() + 14);
 
-    // Check if countdown start time is stored in session storage
-    let countdownStartTime = sessionStorage.getItem("countdownStartTime");
+    // Check if countdown start time is stored in cookies
+    let countdownStartTime = getCookie("countdownStartTime");
     if (!countdownStartTime) {
       countdownStartTime = new Date().getTime();
-      sessionStorage.setItem("countdownStartTime", countdownStartTime);
+      setCookie("countdownStartTime", countdownStartTime, 14); // Expires after 14 days
     }
 
     // Update the countdown every second
@@ -78,14 +78,31 @@
       document.getElementById("hours").textContent = hours + "h";
       document.getElementById("minutes").textContent = minutes + "m";
       document.getElementById("seconds").textContent = seconds + "s";
+    }
 
-      // Redirect when countdown reaches zero
-      if (distance <= 0) {
-        window.location.href = "https://example.com/home"; // Replace with your desired redirection URL
-        sessionStorage.removeItem("countdownStartTime");
+    // Helper functions for handling cookies
+    function setCookie(name, value, days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      const expires = "expires=" + date.toUTCString();
+      document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    }
+
+    function getCookie(name) {
+      const cookieName = name + "=";
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const cookieArray = decodedCookie.split(";");
+      for (let i = 0; i < cookieArray.length; i++) {
+        let cookie = cookieArray[i];
+        while (cookie.charAt(0) === " ") {
+          cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(cookieName) === 0) {
+          return cookie.substring(cookieName.length, cookie.length);
+        }
       }
+      return "";
     }
   </script>
 </body>
 </html>
-
