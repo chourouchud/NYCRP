@@ -18,4 +18,4 @@ RewriteRule ^(.+?)/?$ $1.html [L]
 
 # Redirect root URL to https://chourouchudu.tk/home
 RewriteCond %{HTTPS} !=on
-RewriteRule ^$ https://chourouchudu.tk/home [L,R=301]
+# RewriteRule ^$ https://chourouchudu.tk/home [L,R=301]
